@@ -20,6 +20,11 @@ export AS="aarch64-linux-gnu-as"
 export LD="aarch64-linux-gnu-ld"
 export STRIP="aarch64-linux-gnu-strip"
 
+# Legato mkTools target-specific toolchain discovery
+export RPI5_TOOLCHAIN_DIR="/usr/bin"
+export RPI5_TOOLCHAIN_PREFIX="aarch64-linux-gnu-"
+
+
 # Legato paths
 export PATH="${LEGATO_ROOT}/bin:${PATH}"
 export LEGATO_TARGET_SINC="${REPO_ROOT}/targets/rpi5.sinc"

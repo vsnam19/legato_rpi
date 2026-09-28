@@ -1,0 +1,16 @@
+version: 1.0.0
+sandboxed: false
+start: auto
+
+executables:
+{
+    helloWorld = ( helloComp )
+}
+
+processes:
+{
+    run:
+    {
+        ( helloWorld )
+    }
+}
