@@ -1,0 +1,37 @@
+#!/bin/bash
+# ==============================================================================
+# stopLegato - Graceful shutdown script for Legato AF on Raspberry Pi 5
+# ==============================================================================
+
+echo "Stopping Legato Application Framework..."
+
+# 1. Ask Legato supervisor to stop apps and framework cleanly
+if [ -x /opt/legato/current/bin/legato ]; then
+    /opt/legato/current/bin/legato stop 2>/dev/null || true
+elif [ -x /legato/systems/current/bin/legato ]; then
+    /legato/systems/current/bin/legato stop 2>/dev/null || true
+elif [ -x /opt/legato/current/bin/app ]; then
+    /opt/legato/current/bin/app stopLegato 2>/dev/null || true
+fi
+
+# 2. Wait up to 10 seconds for supervisor process to terminate
+for i in {1..10}; do
+    if ! pgrep -f "/legato/systems/current/bin/supervisor|/opt/legato/current/bin/supervisor" >/dev/null 2>&1; then
+        echo "Legato stopped successfully."
+        exit 0
+    fi
+    sleep 1
+done
+
+# 3. If still running, terminate lingering processes
+echo "Legato supervisor lingering; sending SIGTERM..."
+pkill -TERM -f "/legato/systems/current/bin/supervisor|/opt/legato/current/bin/supervisor" >/dev/null 2>&1 || true
+sleep 2
+
+if pgrep -f "/legato/systems/current/bin/supervisor|/opt/legato/current/bin/supervisor" >/dev/null 2>&1; then
+    echo "Sending SIGKILL..."
+    pkill -KILL -f "/legato/systems/current/bin/supervisor|/opt/legato/current/bin/supervisor" >/dev/null 2>&1 || true
+fi
+
+echo "Legato stopped."
+exit 0

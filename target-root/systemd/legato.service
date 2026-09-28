@@ -1,0 +1,19 @@
+[Unit]
+Description=Legato Application Framework
+After=network.target local-fs.target
+Requires=local-fs.target
+
+[Service]
+Type=forking
+Environment="LEGATO_ROOT=/opt/legato/current"
+Environment="PATH=/opt/legato/current/bin:/legato/systems/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ExecStart=/opt/legato/current/bin/startLegato
+ExecStop=/opt/legato/current/bin/stopLegato
+Restart=always
+RestartSec=5
+TimeoutStartSec=60
+TimeoutStopSec=30
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
