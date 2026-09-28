@@ -1,0 +1,21 @@
+version: 1.0.0
+sandboxed: false
+start: auto
+
+executables:
+{
+    cfgClient = ( clientComponent )
+}
+
+processes:
+{
+    run:
+    {
+        ( cfgClient )
+    }
+}
+
+bindings:
+{
+    cfgClient.clientComponent.cfgManager -> cfgManager.cfgManager
+}

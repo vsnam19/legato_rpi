@@ -1,0 +1,18 @@
+requires:
+{
+    api:
+    {
+        cfgManager = ${PROJECT_ROOT}/interfaces/cfgManager.api
+    }
+}
+
+sources:
+{
+    client.cpp
+}
+
+cxxflags:
+{
+    -std=c++23
+    -I${PROJECT_ROOT}/core/include
+}
