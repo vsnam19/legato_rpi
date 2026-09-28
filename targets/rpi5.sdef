@@ -1,0 +1,19 @@
+//--------------------------------------------------------------------------------------------------
+// Raspberry Pi 5 Core System Definition
+// Minimal Core Framework (daemons, core tools, devMode) without modem services
+//--------------------------------------------------------------------------------------------------
+
+#include "$LEGATO_ROOT/legatoTargetConfig.sinc"
+
+buildVars:
+{
+    LE_CONFIG_LINUX = y
+    LE_CONFIG_RPC = n
+}
+
+apps:
+{
+#if ${LEGATO_DEV_MODE_ENABLE} = 1
+    $LEGATO_ROOT/apps/tools/devMode
+#endif
+}
