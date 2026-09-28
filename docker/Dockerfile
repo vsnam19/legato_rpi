@@ -37,6 +37,10 @@ RUN dpkg --add-architecture arm64 && \
         libjansson-dev:arm64 \
         libcunit1-dev \
         libc6-dev-arm64-cross \
+        libgtest-dev \
+        libgmock-dev \
+        gcovr \
+        lcov \
     && ln -sf /usr/bin/python2.7 /usr/bin/python2 \
     && rm -rf /etc/apt/sources.list.d/bullseye.list \
     && rm -rf /var/lib/apt/lists/*
