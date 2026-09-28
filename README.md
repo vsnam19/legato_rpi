@@ -121,34 +121,55 @@ legato status
 sdir list
 ```
 
-### 4. Build and Run Sample Application
-Compile the sample application and push it to the target:
+### 4. Build and Run Applications
 
+#### Hello World Sample:
 ```bash
-# Build helloWorld sample app:
 bash scripts/build-sample.sh helloWorld
-
-# Deploy app to target:
 bash scripts/deploy.sh --update 192.168.1.100 build/rpi5/apps/helloWorld.rpi5.update
 ```
 
-On the Raspberry Pi 5, monitor application execution:
+#### CfgManager Service (C++23 with TrustZone & AES-256-GCM):
 ```bash
-log read | grep helloWorld
+# Build CfgManager service application:
+bash scripts/build-cfgmanager.sh
+
+# Deploy CfgManager to target:
+bash scripts/deploy.sh --update 192.168.1.100 build/rpi5/apps/cfgManager.rpi5.update
 ```
 
-For complete instructions and advanced options, see [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md).
+#### CfgClient Sample Consumer App:
+```bash
+# Build CfgClient sample consumer:
+bash scripts/build-sample-client.sh
+
+# Deploy CfgClient to target:
+bash scripts/deploy.sh --update 192.168.1.100 build/rpi5/apps/cfgClient.rpi5.update
+```
+
+### 5. Run C++23 Unit Tests & Coverage
+Run the full Google Test suite with C2 branch coverage in Docker:
+
+```bash
+bash scripts/run-unit-tests.sh --coverage
+```
+
+For complete instructions and advanced options, see [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) and [docs/CFG_MANAGER.md](docs/CFG_MANAGER.md).
 
 ---
 
 ## Documentation Links
 
 - [Getting Started Guide](docs/GETTING_STARTED.md)
-- [Architecture & Design Specification](docs/superpowers/specs/2026-09-29-legato-rpi5-design.md)
-- [Implementation Plan](docs/superpowers/plans/2026-09-29-legato-rpi5-implementation.md)
+- [CfgManager Service & Security Architecture](docs/CFG_MANAGER.md)
+- [CfgManager Technical Design Specification](docs/superpowers/specs/2026-09-29-cfgmanager-design.md)
+- [CfgManager Implementation Plan](docs/superpowers/plans/2026-09-29-cfgmanager-implementation.md)
+- [Architecture & Design Specification (Port)](docs/superpowers/specs/2026-09-29-legato-rpi5-design.md)
+- [Implementation Plan (Port)](docs/superpowers/plans/2026-09-29-legato-rpi5-implementation.md)
 
 ---
 
 ## License
 
 The code and scripts in this repository are licensed under the Apache 2.0 / Mozilla Public License 2.0 consistent with the [Legato Application Framework](https://github.com/legatoproject/legato-af).
+
