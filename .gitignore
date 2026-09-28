@@ -1,0 +1,15 @@
+# Build artifacts
+build/
+*.update
+*.tar.bz2
+*.tar.gz
+*.log
+.config.*
+
+# Scratch and intermediate files
+.superpowers/
+.cache/
+*.o
+*.so
+*.a
+
