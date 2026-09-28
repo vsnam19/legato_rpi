@@ -13,11 +13,13 @@ The primary objective is to enable fast, modular IoT application development and
 ### 2.1 Hardware & Operating System
 - **Target Hardware**: Raspberry Pi 5 (BCM2712, 4GB/8GB/16GB RAM, AArch64).
 - **Target Operating System**: Official Raspberry Pi OS 64-bit (Debian Bookworm, kernel 6.6+, glibc 2.36+).
-- **Host Build Platform**: x86_64 Linux (Ubuntu/Debian) equipped with:
-  - `gcc` / `g++` (host compiler)
-  - `aarch64-linux-gnu-gcc` / `aarch64-linux-gnu-g++` (cross compiler)
-  - `cmake` (>= 3.16), `ninja-build`
-  - `git`, `python3`, `pkg-config`
+- **Host Build Platform & Containerized Environment**:
+  - Host OS: Linux x86_64 with Docker installed (`docker`).
+  - Container Base Image: `debian:bookworm` (matching Raspberry Pi OS glibc 2.36 runtime exactly).
+  - Container Toolchain:
+    - Host compiler: `gcc`, `g++`, `ninja-build`, `cmake` (>= 3.25)
+    - Cross compiler: `gcc-aarch64-linux-gnu`, `g++-aarch64-linux-gnu`, `binutils-aarch64-linux-gnu`
+    - Dependencies: `git`, `python3`, `pkg-config`, `libssl-dev`, `libcurl4-openssl-dev`, `libjansson-dev`
 
 ### 2.2 Framework Scope
 - **Included Core Framework**:
@@ -42,6 +44,9 @@ The project adopts an **Out-of-Tree Platform Overlay & Submodule** architecture.
 legato_rpi/
 ├── submodules/
 │   └── legato-af/              # Git submodule: upstream Legato AF repository
+├── docker/
+│   ├── Dockerfile              # Debian Bookworm AArch64 cross-build container definition
+│   └── run-docker-build.sh     # Script to build container image and run compilation
 ├── targets/
 │   ├── rpi5.sdef               # System definition for Raspberry Pi 5
 │   └── rpi5.sinc               # Target-specific build variables and PA mappings
