@@ -53,10 +53,11 @@ std::optional<std::string> ConfigTreeBackend::GetString(std::string_view path) c
 #if HAVE_LEGATO_CONFIG_TREE
     if (useLegatoRuntime_) {
         std::string fullPath = treeName_ + ":" + std::string(path);
-        if (!le_cfg_NodeExists(LE_CFG_STR_ROOT, fullPath.c_str())) {
+        le_cfg_IteratorRef_t iterator = le_cfg_CreateReadTxn(fullPath.c_str());
+        if (!le_cfg_NodeExists(iterator, "")) {
+            le_cfg_CancelTxn(iterator);
             return std::nullopt;
         }
-        le_cfg_IteratorRef_t iterator = le_cfg_CreateReadTxn(fullPath.c_str());
         char buffer[4096] = {0};
         le_result_t res = le_cfg_GetString(iterator, "", buffer, sizeof(buffer), "");
         le_cfg_CancelTxn(iterator);
@@ -102,13 +103,14 @@ std::optional<std::vector<uint8_t>> ConfigTreeBackend::GetBinary(std::string_vie
 #if HAVE_LEGATO_CONFIG_TREE
     if (useLegatoRuntime_) {
         std::string fullPath = treeName_ + ":" + std::string(path);
-        if (!le_cfg_NodeExists(LE_CFG_STR_ROOT, fullPath.c_str())) {
+        le_cfg_IteratorRef_t iterator = le_cfg_CreateReadTxn(fullPath.c_str());
+        if (!le_cfg_NodeExists(iterator, "")) {
+            le_cfg_CancelTxn(iterator);
             return std::nullopt;
         }
-        le_cfg_IteratorRef_t iterator = le_cfg_CreateReadTxn(fullPath.c_str());
         uint8_t buffer[8192] = {0};
         size_t actualSize = sizeof(buffer);
-        le_result_t res = le_cfg_GetBinary(iterator, "", buffer, sizeof(buffer), nullptr, 0, &actualSize);
+        le_result_t res = le_cfg_GetBinary(iterator, "", buffer, &actualSize, nullptr, 0);
         le_cfg_CancelTxn(iterator);
         if (res == LE_OK) {
             return std::vector<uint8_t>(buffer, buffer + actualSize);
@@ -131,10 +133,11 @@ bool ConfigTreeBackend::DeleteNode(std::string_view path) {
 #if HAVE_LEGATO_CONFIG_TREE
     if (useLegatoRuntime_) {
         std::string fullPath = treeName_ + ":" + std::string(path);
-        if (!le_cfg_NodeExists(LE_CFG_STR_ROOT, fullPath.c_str())) {
+        le_cfg_IteratorRef_t iterator = le_cfg_CreateWriteTxn(fullPath.c_str());
+        if (!le_cfg_NodeExists(iterator, "")) {
+            le_cfg_CancelTxn(iterator);
             return false;
         }
-        le_cfg_IteratorRef_t iterator = le_cfg_CreateWriteTxn(fullPath.c_str());
         le_cfg_DeleteNode(iterator, "");
         le_cfg_CommitTxn(iterator);
         return true;
@@ -155,7 +158,10 @@ bool ConfigTreeBackend::NodeExists(std::string_view path) const {
 #if HAVE_LEGATO_CONFIG_TREE
     if (useLegatoRuntime_) {
         std::string fullPath = treeName_ + ":" + std::string(path);
-        return le_cfg_NodeExists(LE_CFG_STR_ROOT, fullPath.c_str());
+        le_cfg_IteratorRef_t iterator = le_cfg_CreateReadTxn(fullPath.c_str());
+        bool exists = le_cfg_NodeExists(iterator, "");
+        le_cfg_CancelTxn(iterator);
+        return exists;
     }
 #endif
 

@@ -1,0 +1,45 @@
+provides:
+{
+    api:
+    {
+        cfgManager = ${PROJECT_ROOT}/interfaces/cfgManager.api
+    }
+}
+
+requires:
+{
+    api:
+    {
+        le_cfg.api
+    }
+}
+
+sources:
+{
+    cfgManagerServer.cpp
+    ${PROJECT_ROOT}/core/src/cfgRouter.cpp
+    ${PROJECT_ROOT}/core/src/cfgManagerService.cpp
+    ${PROJECT_ROOT}/crypto/src/cryptoEngine.cpp
+    ${PROJECT_ROOT}/security/src/securityProviderFactory.cpp
+    ${PROJECT_ROOT}/security/src/simulatedEnclaveProvider.cpp
+    ${PROJECT_ROOT}/security/src/opteeProvider.cpp
+    ${PROJECT_ROOT}/storage/src/memoryConfigBackend.cpp
+    ${PROJECT_ROOT}/storage/src/configTreeBackend.cpp
+    ${PROJECT_ROOT}/events/src/eventDispatcher.cpp
+}
+
+cxxflags:
+{
+    -std=c++23
+    -I${PROJECT_ROOT}/core/include
+    -I${PROJECT_ROOT}/crypto/include
+    -I${PROJECT_ROOT}/security/include
+    -I${PROJECT_ROOT}/storage/include
+    -I${PROJECT_ROOT}/events/include
+}
+
+ldflags:
+{
+    -lcrypto
+    -lssl
+}

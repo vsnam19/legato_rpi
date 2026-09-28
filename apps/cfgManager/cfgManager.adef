@@ -1,0 +1,26 @@
+version: 1.0.0
+sandboxed: false
+start: auto
+
+executables:
+{
+    cfgManager = ( server )
+}
+
+processes:
+{
+    run:
+    {
+        ( cfgManager )
+    }
+}
+
+extern:
+{
+    cfgManager = cfgManager.server.cfgManager
+}
+
+bindings:
+{
+    cfgManager.server.le_cfg -> <root>.le_cfg
+}

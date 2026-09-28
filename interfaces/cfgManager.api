@@ -1,0 +1,121 @@
+//--------------------------------------------------------------------------------------------------
+/**
+ * @page c_cfgManager Configuration Manager Service API
+ *
+ * Legato Service providing unified, hardware-enforced configuration management:
+ * - RawData: plain-text storage in Legato configTree
+ * - SensitiveData: AES-256-GCM authenticated encryption in configTree
+ * - SecureData: TrustZone / OP-TEE Hardware Enclave storage
+ *
+ * All operations identify configurations exclusively through composite 32-bit cfgId.
+ */
+//--------------------------------------------------------------------------------------------------
+
+DEFINE MAX_STRING_LEN = 4096;
+DEFINE MAX_BINARY_LEN = 4096;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Write a string configuration value associated with cfgId.
+ *
+ * @return
+ *      LE_OK if successful.
+ *      LE_BAD_PARAMETER if cfgId is invalid.
+ *      LE_FAULT if encryption or storage fails.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t SetString
+(
+    uint32 cfgId IN,                   ///< Composite 32-bit cfgId
+    string value[MAX_STRING_LEN] IN    ///< String value to store
+);
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Read a string configuration value associated with cfgId.
+ *
+ * @return
+ *      LE_OK if successful.
+ *      LE_BAD_PARAMETER if cfgId is invalid.
+ *      LE_NOT_FOUND if configuration item does not exist.
+ *      LE_OVERFLOW if value buffer is too small.
+ *      LE_FAULT if decryption or reading fails.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t GetString
+(
+    uint32 cfgId IN,                    ///< Composite 32-bit cfgId
+    string value[MAX_STRING_LEN] OUT    ///< Buffer to receive string value
+);
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Write a binary configuration value associated with cfgId.
+ *
+ * @return
+ *      LE_OK if successful.
+ *      LE_BAD_PARAMETER if cfgId is invalid.
+ *      LE_FAULT if encryption or storage fails.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t SetBinary
+(
+    uint32 cfgId IN,                   ///< Composite 32-bit cfgId
+    uint8 data[MAX_BINARY_LEN] IN      ///< Binary payload to store
+);
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Read a binary configuration value associated with cfgId.
+ *
+ * @return
+ *      LE_OK if successful.
+ *      LE_BAD_PARAMETER if cfgId is invalid.
+ *      LE_NOT_FOUND if configuration item does not exist.
+ *      LE_OVERFLOW if buffer is too small.
+ *      LE_FAULT if decryption or reading fails.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t GetBinary
+(
+    uint32 cfgId IN,                    ///< Composite 32-bit cfgId
+    uint8 data[MAX_BINARY_LEN] OUT      ///< Buffer to receive binary payload
+);
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Delete a configuration item associated with cfgId.
+ *
+ * @return
+ *      LE_OK if successful.
+ *      LE_NOT_FOUND if configuration item does not exist.
+ *      LE_BAD_PARAMETER if cfgId is invalid.
+ *      LE_FAULT if deletion fails.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t Delete
+(
+    uint32 cfgId IN                    ///< Composite 32-bit cfgId to delete
+);
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Handler for configuration change notifications.
+ */
+//--------------------------------------------------------------------------------------------------
+HANDLER ChangeHandler
+(
+    uint32 cfgId IN,                    ///< Configuration ID that changed
+    string valueStr[MAX_STRING_LEN] IN  ///< New string representation/value
+);
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Event for subscribing to configuration changes by cfgId.
+ */
+//--------------------------------------------------------------------------------------------------
+EVENT Change
+(
+    uint32 cfgId IN,                    ///< Target cfgId (or 0 for all changes in subsystem)
+    ChangeHandler handler               ///< Change callback handler
+);
