@@ -32,5 +32,12 @@ else
     }
 fi
 
+# Ensure 3rdParty/Kconfiglib is present (required by Legato build system)
+KCONFIGLIB_DIR="${SUBMODULE_DIR}/3rdParty/Kconfiglib"
+if [ ! -f "${KCONFIGLIB_DIR}/setconfig.py" ]; then
+    echo "==> Fetching Kconfiglib into ${KCONFIGLIB_DIR}..."
+    git clone --depth 1 https://github.com/ulfalizer/Kconfiglib.git "${KCONFIGLIB_DIR}"
+fi
+
 echo "==> Legato AF submodule setup complete."
 ls -lh "${SUBMODULE_DIR}/Makefile" "${SUBMODULE_DIR}/CMakeLists.txt"

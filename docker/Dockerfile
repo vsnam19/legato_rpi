@@ -2,8 +2,9 @@ FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Enable multiarch for target ARM64 packages
+# Enable multiarch and bullseye repo for python2.7 and python-jinja2 (required by Legato ifgen)
 RUN dpkg --add-architecture arm64 && \
+    echo 'deb http://deb.debian.org/debian bullseye main' > /etc/apt/sources.list.d/bullseye.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
@@ -18,6 +19,10 @@ RUN dpkg --add-architecture arm64 && \
         ninja-build \
         git \
         python3 \
+        python2.7 \
+        python2.7-minimal \
+        python-jinja2 \
+        python-pkg-resources \
         pkg-config \
         bison \
         flex \
@@ -32,6 +37,8 @@ RUN dpkg --add-architecture arm64 && \
         libjansson-dev:arm64 \
         libcunit1-dev \
         libc6-dev-arm64-cross \
+    && ln -sf /usr/bin/python2.7 /usr/bin/python2 \
+    && rm -rf /etc/apt/sources.list.d/bullseye.list \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
