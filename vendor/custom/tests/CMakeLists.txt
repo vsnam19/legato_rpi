@@ -34,6 +34,8 @@ file(GLOB_RECURSE CORE_SRCS
 file(GLOB_RECURSE TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
+list(FILTER TEST_SRCS EXCLUDE REGEX ".*/build/.*")
+list(FILTER TEST_SRCS EXCLUDE REGEX ".*/CMakeFiles/.*")
 
 add_executable(cfgmanager_tests
     ${TEST_SRCS}

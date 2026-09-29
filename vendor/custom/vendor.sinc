@@ -1,0 +1,19 @@
+// ==============================================================================
+// Qualcomm TelAF Simulation - Vendor System Include (vendor.sinc)
+// Integrates custom vendor apps and components into TelAF system definition
+// ==============================================================================
+
+apps:
+{
+    $PROJECT_ROOT/vendor/custom/apps/cfgManager/cfgManager.adef
+}
+
+interfaceSearch:
+{
+    $PROJECT_ROOT/vendor/custom/interfaces
+}
+
+componentSearch:
+{
+    $PROJECT_ROOT/vendor/custom/components
+}
