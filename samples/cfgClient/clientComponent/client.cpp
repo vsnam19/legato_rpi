@@ -17,7 +17,7 @@ void OnConfigChanged(uint32_t cfgId, const char* valueStr, void* contextPtr) {
 
 COMPONENT_INIT {
     LE_INFO("=================================================================");
-    LE_INFO(" CfgManager Sample Client Application Started (C++23)");
+    LE_INFO(" CfgManager Sample Client Application Started (C++20)");
     LE_INFO("=================================================================");
 
     // 1. Compose 32-bit cfgIds strictly abstracting all internal storage paths

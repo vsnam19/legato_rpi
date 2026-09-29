@@ -100,7 +100,7 @@ void cfgManager_RemoveChangeHandler(cfgManager_ChangeHandlerRef_t handlerRef) {
 }
 
 COMPONENT_INIT {
-    LE_INFO("Initializing Legato CfgManager Service (C++23)...");
+    LE_INFO("Initializing Legato CfgManager Service (C++20)...");
 
     auto router = std::make_unique<cfg::CfgRouter>();
     auto storage = std::make_unique<cfgmanager::storage::ConfigTreeBackend>("cfgManager");

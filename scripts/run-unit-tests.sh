@@ -22,7 +22,7 @@ for arg in "$@"; do
 done
 
 echo "====================================================================="
-echo " Running CfgManager Google Test Suite (C++23)"
+echo " Running CfgManager Google Test Suite (C++20)"
 echo "====================================================================="
 
 BUILD_DIR="${PROJECT_ROOT}/build/tests"

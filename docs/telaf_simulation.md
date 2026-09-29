@@ -15,7 +15,7 @@ All execution and developer tooling scripts are located in `scripts/`:
 | [`scripts/run-simulation.sh`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/scripts/run-simulation.sh) | Manages TelAF simulation container lifecycle (`start`, `stop`, `status`, `shell`, `logs`). |
 | [`scripts/build.sh`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/scripts/build.sh) | Compiles `cfgManager` daemon and `cfgClient` demo using development container (`telaf_simulation_develop_2204:1.0.0`). |
 | [`scripts/deploy.sh`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/scripts/deploy.sh) | Installs update packages into runtime container (`telaf_simulation_runtime_2204_m`), restarts client, and prints live syslog. |
-| [`scripts/run-unit-tests.sh`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/scripts/run-unit-tests.sh) | Executes the 45 Google Test C++23 unit tests and generates C2 branch coverage report. |
+| [`scripts/run-unit-tests.sh`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/scripts/run-unit-tests.sh) | Executes the 45 Google Test C++20 unit tests and generates C2 branch coverage report. |
 
 ---
 
@@ -67,8 +67,8 @@ TelAF framework is running
 ## 4. Developing & Deploying CfgManager on TelAF Simulation
 
 ### 4.1 Architecture Highlights
-1. **C++23 Modern Service**:
-   - Implemented with `-std=c++23`, using modern features, structured bindings, `std::span`, and smart pointers.
+1. **C++20 Modern Service**:
+   - Implemented with `-std=c++20`, using modern features, structured bindings, `std::span`, and smart pointers.
    - Built with `-static-libstdc++` and `-static-libgcc` in `Component.cdef` to guarantee runtime symbol compatibility inside Ubuntu 22.04.
 2. **TelAF RPC Interface Specification (`interfaces/cfgManager.api`)**:
    - TelAF IPC code generator (`ifgen`) requires explicit RPC message identifiers:
@@ -125,7 +125,7 @@ Upon deployment, `cfgClient` connects to `cfgManager` over TelAF IPC and execute
 ```text
 Sep 29 08:54:30 simulation user.info TelAF:  INFO | supervisor[219]/supervisor T=main | proc.c proc_Start() 1594 | Starting process 'cfgClient' with pid 152725
 Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 19 | =================================================================
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 20 |  CfgManager Sample Client Application Started (C++23)
+Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 20 |  CfgManager Sample Client Application Started (C++20)
 Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 21 | =================================================================
 Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 29 | Target cfgIds: Raw=0x01020001, Sensitive=0x02030002, Secure=0x04030003, Bin=0x02040004
 Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 33 | ==> Subscribing to change events for Raw cfgId 0x01020001...

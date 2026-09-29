@@ -1,11 +1,11 @@
-# Qualcomm TelAF CfgManager Service (C++23) - Simulation Environment
+# Qualcomm TelAF CfgManager Service (C++20) - Simulation Environment
 
 [![Platform](https://img.shields.io/badge/Platform-Qualcomm%20TelAF%20Simulation-blue.svg)](#)
-[![Standard](https://img.shields.io/badge/C%2B%2B-23-purple.svg)](#)
+[![Standard](https://img.shields.io/badge/C%2B%2B-20-purple.svg)](#)
 [![Tests](https://img.shields.io/badge/Tests-Google%20Test%20(45%2F45%20PASS)-brightgreen.svg)](#)
 [![Security](https://img.shields.io/badge/Security-TrustZone%20%7C%20AES--256--GCM-orange.svg)](#)
 
-A modern **C++23** Configuration Management Service (`CfgManager`) running on the **Qualcomm Telematics Application Framework (TelAF) Simulation** environment.
+A modern **C++20** Configuration Management Service (`CfgManager`) running on the **Qualcomm Telematics Application Framework (TelAF) Simulation** environment.
 
 ---
 
@@ -18,7 +18,7 @@ flowchart TD
     end
 
     subgraph ServiceLayer["Legato / TelAF Daemon Services"]
-        CfgMgr["cfgManager Daemon (C++23)"]
+        CfgMgr["cfgManager Daemon (C++20)"]
         Router["CfgRouter (32-bit cfgId Path Mapper)"]
         Crypto["CryptoEngine (AES-256-GCM)"]
         SecHal["SecurityProvider HAL (TrustZone / Enclave)"]
@@ -51,7 +51,7 @@ flowchart TD
   - **SensitiveData:** Authenticated encryption using OpenSSL **AES-256-GCM** with unique 96-bit random IV and 128-bit authentication tag per entry.
   - **SecureData:** Hardware root-of-trust storage via TrustZone / OP-TEE HAL with automatic simulated enclave fallback.
 - **Pub/Sub Change Notifications:** Real-time event propagation via Legato event loop with ID-specific and subsystem-wide filters.
-- **C++23 Standard:** Implemented using modern C++23 features, concepts, structured bindings, and RAII.
+- **C++20 Standard:** Implemented using modern C++20 features, concepts, structured bindings, and RAII.
 - **Google Test Coverage:** 45 automated unit tests with C2 branch coverage.
 
 ---
@@ -60,7 +60,7 @@ flowchart TD
 
 ```text
 legato_rpi/  (Branch: feat/telaf-simulation)
-├── components/                       # Reusable business logic C++23 components
+├── components/                       # Reusable business logic C++20 components
 │   └── cfgManager/
 │       ├── core/                     # cfgId, cfgRouter, cfgManagerService
 │       ├── crypto/                   # AES-256-GCM crypto engine
@@ -83,7 +83,7 @@ legato_rpi/  (Branch: feat/telaf-simulation)
 │   ├── run-simulation.sh             # Manages container lifecycle (start|stop|status|shell)
 │   └── run-unit-tests.sh             # Google Test runner with C2 coverage
 │
-├── tests/                            # Google Test C++23 Unit Tests
+├── tests/                            # Google Test C++20 Unit Tests
 │   ├── core/
 │   ├── crypto/
 │   ├── security/
@@ -113,7 +113,7 @@ Verify framework status:
 ```
 
 ### 2. Run Google Test Unit Tests
-Execute the pure C++23 unit test suite with coverage:
+Execute the pure C++20 unit test suite with coverage:
 ```bash
 ./scripts/run-unit-tests.sh --coverage
 ```

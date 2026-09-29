@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# build.sh - Build CfgManager & CfgClient (C++23) for Qualcomm TelAF Simulation
+# build.sh - Build CfgManager & CfgClient (C++20) for Qualcomm TelAF Simulation
 # ==============================================================================
 set -euo pipefail
 
@@ -20,7 +20,7 @@ if [ ! -f "${SIM_ENV}/legato/legato-af/bin/mkapp" ]; then
 fi
 
 echo "====================================================================="
-echo " Building CfgManager & CfgClient (C++23) for TelAF Simulation"
+echo " Building CfgManager & CfgClient (C++20) for TelAF Simulation"
 echo "====================================================================="
 echo "Project Root   : ${PROJECT_ROOT}"
 echo "Simulation Env : ${SIM_ENV}"

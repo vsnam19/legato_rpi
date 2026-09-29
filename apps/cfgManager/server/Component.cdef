@@ -30,7 +30,7 @@ sources:
 
 cxxflags:
 {
-    -std=c++23
+    -std=c++20
     -I${PROJECT_ROOT}/components/cfgManager/core/include
     -I${PROJECT_ROOT}/components/cfgManager/crypto/include
     -I${PROJECT_ROOT}/components/cfgManager/security/include
