@@ -1,0 +1,56 @@
+diff -uprN a/upstream/legato/legato-af/framework/tools/ifgen/ifgen b/upstream/legato/legato-af/framework/tools/ifgen/ifgen
+--- a/upstream/legato/legato-af/framework/tools/ifgen/ifgen
++++ b/upstream/legato/legato-af/framework/tools/ifgen/ifgen
+@@ -309,7 +309,6 @@ def GenerateCode(args):
+     # Set up the jinja2 environment
+     TemplateEnvironment = jinja2.Environment(
+         loader=jinja2.PackageLoader(langPkg.__name__),
+-        extensions=['jinja2.ext.with_'],
+         autoescape=False,
+         keep_trailing_newline=True
+     )
+diff -uprN a/upstream/legato/legato-af/framework/tools/ifgen/ifgenJinjaExtensions.py b/upstream/legato/legato-af/framework/tools/ifgen/ifgenJinjaExtensions.py
+--- a/upstream/legato/legato-af/framework/tools/ifgen/ifgenJinjaExtensions.py
++++ b/upstream/legato/legato-af/framework/tools/ifgen/ifgenJinjaExtensions.py
+@@ -9,7 +9,10 @@
+ 
+ import interfaceIR
+ import itertools
+-from jinja2 import contextfunction
++try:
++    from jinja2 import pass_context as contextfunction
++except ImportError:
++    from jinja2 import contextfunction
+ 
+ 
+ #---------------------------------------------------------------------------------------------------
+diff -uprN a/upstream/legato/legato-af/framework/tools/ifgen/langC/codeGenHelpers.py b/upstream/legato/legato-af/framework/tools/ifgen/langC/codeGenHelpers.py
+--- a/upstream/legato/legato-af/framework/tools/ifgen/langC/codeGenHelpers.py
++++ b/upstream/legato/legato-af/framework/tools/ifgen/langC/codeGenHelpers.py
+@@ -12,7 +12,10 @@
+ 
+ import os
+ import interfaceIR
+-from jinja2 import contextfilter, environmentfilter
++try:
++    from jinja2 import pass_context as contextfilter, pass_environment as environmentfilter
++except ImportError:
++    from jinja2 import contextfilter, environmentfilter
+ 
+ #---------------------------------------------------------------------------------------------------
+ # Global objects used by the C API
+diff -uprN a/upstream/legato/legato-af/framework/tools/ifgen/langJava/codeGenHelpers.py b/upstream/legato/legato-af/framework/tools/ifgen/langJava/codeGenHelpers.py
+--- a/upstream/legato/legato-af/framework/tools/ifgen/langJava/codeGenHelpers.py
++++ b/upstream/legato/legato-af/framework/tools/ifgen/langJava/codeGenHelpers.py
+@@ -11,7 +11,10 @@
+ #
+ 
+ import interfaceIR
+-from jinja2 import contextfilter
++try:
++    from jinja2 import pass_context as contextfilter
++except ImportError:
++    from jinja2 import contextfilter
+ 
+ #---------------------------------------------------------------------------------------------------
+ # Global objects used by the C API
