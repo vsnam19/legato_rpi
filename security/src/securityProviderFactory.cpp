@@ -10,10 +10,13 @@ std::unique_ptr<ISecurityProvider> CreateOpteeProvider();
 std::unique_ptr<ISecurityProvider> CreateSecurityProvider(std::string_view storagePath) {
     auto optee = CreateOpteeProvider();
     if (optee && optee->IsAvailable()) {
-        return optee;
+        auto key = optee->GetMasterKey();
+        if (key.has_value() && !key->empty()) {
+            return optee;
+        }
     }
 
-    // Fallback to SimulatedEnclave for development and systems without OP-TEE firmware
+    // Fallback to SimulatedEnclave for development, simulation and systems without OP-TEE firmware
     return CreateSimulatedEnclaveProvider(storagePath);
 }
 

@@ -42,4 +42,6 @@ ldflags:
 {
     -lcrypto
     -lssl
+    -static-libstdc++
+    -static-libgcc
 }

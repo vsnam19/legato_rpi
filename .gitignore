@@ -13,4 +13,6 @@ build/
 *.so
 *.a
 telaf_simulation_env/
-
+_build_*/
+apps/**/_build_*/
+samples/**/_build_*/

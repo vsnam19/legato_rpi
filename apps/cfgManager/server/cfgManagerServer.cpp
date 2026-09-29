@@ -122,8 +122,7 @@ COMPONENT_INIT {
         return;
     }
 
-    cfgManager_AdvertiseService();
-    LE_INFO("CfgManager service advertised and ready for IPC clients.");
+    LE_INFO("CfgManager service initialized and ready for IPC clients.");
 }
 
 } // extern "C"

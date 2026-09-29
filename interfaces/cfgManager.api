@@ -28,7 +28,7 @@ FUNCTION le_result_t SetString
 (
     uint32 cfgId IN,                   ///< Composite 32-bit cfgId
     string value[MAX_STRING_LEN] IN    ///< String value to store
-);
+) = 0;
 
 //--------------------------------------------------------------------------------------------------
 /**
@@ -46,7 +46,7 @@ FUNCTION le_result_t GetString
 (
     uint32 cfgId IN,                    ///< Composite 32-bit cfgId
     string value[MAX_STRING_LEN] OUT    ///< Buffer to receive string value
-);
+) = 1;
 
 //--------------------------------------------------------------------------------------------------
 /**
@@ -62,7 +62,7 @@ FUNCTION le_result_t SetBinary
 (
     uint32 cfgId IN,                   ///< Composite 32-bit cfgId
     uint8 data[MAX_BINARY_LEN] IN      ///< Binary payload to store
-);
+) = 2;
 
 //--------------------------------------------------------------------------------------------------
 /**
@@ -80,7 +80,7 @@ FUNCTION le_result_t GetBinary
 (
     uint32 cfgId IN,                    ///< Composite 32-bit cfgId
     uint8 data[MAX_BINARY_LEN] OUT      ///< Buffer to receive binary payload
-);
+) = 3;
 
 //--------------------------------------------------------------------------------------------------
 /**
@@ -96,7 +96,7 @@ FUNCTION le_result_t GetBinary
 FUNCTION le_result_t Delete
 (
     uint32 cfgId IN                    ///< Composite 32-bit cfgId to delete
-);
+) = 4;
 
 //--------------------------------------------------------------------------------------------------
 /**
@@ -118,4 +118,4 @@ EVENT Change
 (
     uint32 cfgId IN,                    ///< Target cfgId (or 0 for all changes in subsystem)
     ChangeHandler handler               ///< Change callback handler
-);
+) = (5, 6);

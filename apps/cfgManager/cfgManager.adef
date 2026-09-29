@@ -22,5 +22,5 @@ extern:
 
 bindings:
 {
-    cfgManager.server.le_cfg -> <root>.le_cfg
+    cfgManager.server.le_cfg -> <tafcore>.le_cfg
 }

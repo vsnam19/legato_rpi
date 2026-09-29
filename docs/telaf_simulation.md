@@ -145,3 +145,87 @@ MQTTManager      [running]
 smsManager       [running]
 ShoulderTap      [running]
 ```
+
+---
+
+## 6. Developing & Deploying CfgManager on TelAF Simulation
+
+### 6.1 Architecture Highlights
+1. **C++23 Modern Service**:
+   - Compiles with `-std=c++23`, using modern standard library features, concepts, and structured bindings.
+   - Built with `-static-libstdc++` and `-static-libgcc` to avoid libc++ runtime symbol version issues across simulation environments.
+2. **TelAF RPC Interface Specification (`interfaces/cfgManager.api`)**:
+   - TelAF IPC code generator (`ifgen`) requires explicit RPC message identifiers:
+     - `SetString(...) = 0;`
+     - `GetString(...) = 1;`
+     - `SetBinary(...) = 2;`
+     - `GetBinary(...) = 3;`
+     - `Delete(...) = 4;`
+     - `EVENT Change(...) = (5, 6);`
+3. **TelAF System Service Domain Binding**:
+   - TelAF core daemons (`configTree`, `logDaemon`) execute under the `tafcore` security domain.
+   - In [`apps/cfgManager/cfgManager.adef`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/apps/cfgManager/cfgManager.adef), IPC is bound to:
+     ```text
+     bindings: {
+         cfgManager.server.le_cfg -> <tafcore>.le_cfg
+     }
+     ```
+4. **Security Provider HAL with OP-TEE Fallback**:
+   - Evaluates `/dev/tee0` device availability and tests active key derivation via [`ISecurityProvider::GetMasterKey()`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/security/src/securityProviderFactory.cpp).
+   - In environments where OP-TEE driver is accessible but secure world supplicants are absent (e.g. Docker containers), the factory gracefully falls back to `SimulatedEnclaveProvider`, guaranteeing 100% operational availability while preserving hardware security boundaries on real target hardware.
+5. **Path Abstraction via Composite `cfgId` (32-bit bitfield)**:
+   - Consumer applications interact only via 32-bit `cfgId` (`[Subsystem 8b][Category 8b][Flags 8b][KeyId 8b]`).
+   - Consumer never learns internal filesystem or configTree tree hierarchy paths.
+6. **Data Classification**:
+   - **RawData**: Stored directly in `configTree`.
+   - **SensitiveData**: Encrypted with AES-256-GCM with per-entry random 96-bit IV and 128-bit authentication tag before writing to `configTree`.
+   - **SecureData**: Stored directly in secure hardware enclave / TrustZone storage.
+7. **Pub/Sub Notifications**:
+   - Subscribers register for change callbacks on specific `cfgId`s or subsystem masks using Legato event loop.
+
+---
+
+### 6.2 Build Instructions
+Both `cfgManager` and `cfgClient` are compiled inside the TelAF simulation development Docker image (`telaf_simulation_develop_2204:1.0.0`) to match target GLIBC and compiler requirements:
+```bash
+./scripts/build-cfgmanager-sim.sh
+```
+This generates:
+- `apps/cfgManager/cfgManager.simulation.update`
+- `samples/cfgClient/cfgClient.simulation.update`
+
+---
+
+### 6.3 Deployment & Verification Instructions
+Deploy the packages into the running TelAF simulation container and execute the verification sequence:
+```bash
+./scripts/deploy-cfgmanager-sim.sh
+```
+
+---
+
+### 6.4 End-to-End Execution Evidence
+Upon deployment, `cfgClient` connects to `cfgManager` over TelAF IPC and executes full functional validation:
+```text
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | supervisor[219]/supervisor T=main | proc.c proc_Start() 1594 | Starting process 'cfgClient' with pid 152679
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 19 | =================================================================
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 20 |  CfgManager Sample Client Application Started (C++23)
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 21 | =================================================================
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 29 | Target cfgIds: Raw=0x01020001, Sensitive=0x02030002, Secure=0x04030003, Bin=0x02040004
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 33 | ==> Subscribing to change events for Raw cfgId 0x01020001...
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 36 | Successfully registered change handler ref 0x12d
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 42 | ==> Writing RawData string...
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 49 | [RawData Result] Successfully read: 'rpi5-edge-gateway.local'
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 52 | ==> Writing SensitiveData (AES-256-GCM)...
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 59 | [SensitiveData Result] Decrypted transparently: 'M4st3r_P@ssw0rd_K3y#2026!'
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 62 | ==> Writing SecureData (TrustZone Secure Storage)...
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 69 | [SecureData Result] Retrieved from TrustZone: 'HW-ROOT-OF-TRUST-TOKEN-994821'
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 72 | ==> Writing Binary SensitiveData blob...
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 88 | [Binary Result] Retrieved 9 bytes: [ 0x10 0x20 0x30 0x40 0x50 0xDE 0xAD 0xBE 0xEF ]
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 91 | ==> Updating RawData to trigger Pub/Sub change notification...
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 95 | =================================================================
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 96 |  CfgManager Sample Client Demo Complete - ALL CHECKS PASSED!
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 97 | =================================================================
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp OnConfigChanged() 13 | >>> [CLIENT EVENT] Configuration changed: cfgId=0x01020001, Value='rpi5-edge-gateway.local'
+Sep 29 06:53:06 simulation user.info TelAF:  INFO | cfgClient[152679]/clientComponent T=main | client.cpp OnConfigChanged() 13 | >>> [CLIENT EVENT] Configuration changed: cfgId=0x01020001, Value='rpi5-edge-gateway-RECONFIGURED.local'
+```

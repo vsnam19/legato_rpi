@@ -16,3 +16,9 @@ cxxflags:
     -std=c++23
     -I${PROJECT_ROOT}/core/include
 }
+
+ldflags:
+{
+    -static-libstdc++
+    -static-libgcc
+}
