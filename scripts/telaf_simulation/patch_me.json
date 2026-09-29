@@ -1,0 +1,49 @@
+{
+    "telaf": {
+        "Remote-Repo-Name": "origin",
+        "Remote-Branch-Name": "telaf.lnx.1.1",
+        "Commit-ID": "86832ddb2622bdf39e391856bec8a19e0155f6eb",
+        "Description": "TAF_26.01.00",
+        "Patch-Cmd-List": []
+    },
+    "telaf-pa": {
+        "Remote-Repo-Name": "origin",
+        "Remote-Branch-Name": "telaf-pa.lnx.1.0",
+        "Commit-ID": "7ab462acfec7e799daacc988ddf5942e2719ac82",
+        "Description": "TAF_26.01.00",
+        "Patch-Cmd-List": []
+    },
+    "telaf-pa-default": {
+        "Remote-Repo-Name": "origin",
+        "Remote-Branch-Name": "telaf.lnx.1.1",
+        "Commit-ID": "0f1311da6385f489defb613e93f34ef14669815e",
+        "Description": "TAF_26.01.00",
+        "Patch-Cmd-List": []
+    },
+    "legato/legato-af": {
+        "Remote-Repo-Name": "origin",
+        "Remote-Branch-Name": "telaf.lnx.1.1",
+        "Commit-ID": "04f1b61edbc991809493df2390bfba5d52dfdbc6",
+        "Description": "TAF_26.01.00",
+        "Patch-Cmd-List": []
+    },
+    "legato/3rdParty/jansson": {
+        "Remote-Repo-Name": "origin",
+        "Remote-Branch-Name": "caf_migration/refs/tags/20.04.0",
+        "Commit-ID": "cfed4c57d3deffab23e2e368d264a4087afc46ab",
+        "Patch-Cmd-List": []
+    },
+    "legato/3rdParty/Kconfiglib": {
+        "Remote-Repo-Name": "origin",
+        "Remote-Branch-Name": "caf_migration/refs/tags/20.04.0",
+        "Commit-ID": "ae147b3d2727b222653183b5abf77e38c052b595",
+        "Patch-Cmd-List": []
+    },
+    "sdk": {
+        "Remote-Repo-Name": "origin",
+        "Remote-Branch-Name": "telsdk.lnx.2.0.r11-rel",
+        "Commit-ID": "0eb6442c2733535b835c4c792a7a69dea0499349",
+        "Description": "POST CS[5]",
+        "Patch-Cmd-List": []
+    }
+}
