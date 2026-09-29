@@ -1,179 +1,64 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# deploy.sh - Network Deployment Script for Legato AF on Raspberry Pi 5
+# deploy.sh - Deploy & Verify CfgManager on Qualcomm TelAF Simulation
 # ==============================================================================
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-DEFAULT_USER="pi"
-SSH_PORT="22"
-UPDATE_FILE="${PROJECT_ROOT}/build/rpi5/system.rpi5.update"
+CONTAINER_NAME="telaf_simulation_runtime_2204_m"
+CFG_MGR_PKG="${PROJECT_ROOT}/apps/cfgManager/cfgManager.simulation.update"
+CFG_CLIENT_PKG="${PROJECT_ROOT}/samples/cfgClient/cfgClient.simulation.update"
 
-usage() {
-    cat << EOF
-Usage: $0 [MODE] <TARGET_IP> [OPTIONS]
+echo "====================================================================="
+echo " Deploying CfgManager & CfgClient to TelAF Simulation Runtime"
+echo "====================================================================="
+echo "Container: ${CONTAINER_NAME}"
+echo
 
-Automated deployment tool for Legato AF on Raspberry Pi 5 over SSH.
-
-Modes:
-  --bootstrap <TARGET_IP> [USER]    Perform first-time installation and service setup on target
-  --update <TARGET_IP> [FILE]       Push system or app update package to running Legato system
-  --status <TARGET_IP> [USER]       Query Legato system status, supervisor, and active services
-  --logs <TARGET_IP> [USER]         Follow live Legato framework logs via journalctl
-  -h, --help                        Show this help message
-
-Default target user: ${DEFAULT_USER}
-Default update file: build/rpi5/system.rpi5.update
-
-Examples:
-  # First-time target deployment:
-  $0 --bootstrap 192.168.1.100 pi
-
-  # Deploy an updated system image over network:
-  $0 --update 192.168.1.100
-
-  # Deploy a specific sample app:
-  $0 --update 192.168.1.100 build/rpi5/apps/helloWorld.rpi5.update
-
-  # Check Legato status on device:
-  $0 --status 192.168.1.100
-EOF
-    exit 0
-}
-
-if [ $# -eq 0 ]; then
-    usage
+# 1. Verify container is running
+if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+    echo "ERROR: Container ${CONTAINER_NAME} is not running." >&2
+    echo "Please start the TelAF simulation container first (e.g. ./scripts/run-simulation.sh start)." >&2
+    exit 1
 fi
 
-MODE="$1"
-shift
+# 2. Check if update packages exist; if not, build them
+if [ ! -f "${CFG_MGR_PKG}" ] || [ ! -f "${CFG_CLIENT_PKG}" ]; then
+    echo "Update packages not found. Invoking build script..."
+    "${SCRIPT_DIR}/build.sh"
+fi
 
-case "${MODE}" in
-    -h|--help)
-        usage
-        ;;
-    --bootstrap)
-        if [ $# -lt 1 ]; then
-            echo "ERROR: Target IP required for bootstrap." >&2
-            usage
-        fi
-        TARGET_IP="$1"
-        USER="${2:-$DEFAULT_USER}"
-        SSH_DEST="${USER}@${TARGET_IP}"
+# 3. Copy update packages into runtime container
+echo "==> Copying packages to runtime container..."
+docker cp "${CFG_MGR_PKG}" "${CONTAINER_NAME}:/tmp/cfgManager.simulation.update"
+docker cp "${CFG_CLIENT_PKG}" "${CONTAINER_NAME}:/tmp/cfgClient.simulation.update"
 
-        echo "====================================================================="
-        echo " Bootstrapping Legato AF on ${SSH_DEST}"
-        echo "====================================================================="
+# 4. Install packages via Legato update daemon
+echo "==> Installing cfgManager package..."
+docker exec "${CONTAINER_NAME}" /bin/bash -c "export PATH=/legato/systems/current/bin:\$PATH && update /tmp/cfgManager.simulation.update"
 
-        if [ ! -f "${UPDATE_FILE}" ]; then
-            echo "ERROR: Build artifact '${UPDATE_FILE}' not found." >&2
-            echo "Run 'bash scripts/build.sh' first." >&2
-            exit 1
-        fi
+echo "==> Installing cfgClient package..."
+docker exec "${CONTAINER_NAME}" /bin/bash -c "export PATH=/legato/systems/current/bin:\$PATH && update /tmp/cfgClient.simulation.update"
 
-        echo "==> Testing SSH connection to ${SSH_DEST}..."
-        ssh -o ConnectTimeout=5 -p "${SSH_PORT}" "${SSH_DEST}" "uname -a"
+echo "==> Restarting cfgClient to run live demo tests..."
+docker exec "${CONTAINER_NAME}" /bin/bash -c "export PATH=/legato/systems/current/bin:\$PATH && app restart cfgClient"
 
-        echo "==> Creating temporary staging area on target..."
-        ssh -p "${SSH_PORT}" "${SSH_DEST}" "rm -rf /tmp/legato-bootstrap && mkdir -p /tmp/legato-bootstrap"
+# Give a brief moment for client demo to execute
+sleep 2
 
-        echo "==> Transferring system update package and installer scripts..."
-        scp -P "${SSH_PORT}" "${UPDATE_FILE}" "${SSH_DEST}:/tmp/legato-bootstrap/system.rpi5.update"
-        scp -r -P "${SSH_PORT}" "${PROJECT_ROOT}/target-root"/* "${SSH_DEST}:/tmp/legato-bootstrap/"
+# 5. Check app status
+echo
+echo "==> Verifying application status:"
+docker exec "${CONTAINER_NAME}" /bin/bash -c "export PATH=/legato/systems/current/bin:\$PATH && app status | grep -E 'cfgManager|cfgClient'"
 
-        echo "==> Running installer on remote Raspberry Pi 5..."
-        ssh -t -p "${SSH_PORT}" "${SSH_DEST}" "sudo /tmp/legato-bootstrap/install-rpi5.sh /tmp/legato-bootstrap/system.rpi5.update"
+# 6. Show execution logs from syslog
+echo
+echo "==> Client demo logread output:"
+docker exec "${CONTAINER_NAME}" /bin/bash -c "logread | grep -E 'cfgClient|cfgManager' | tail -n 25"
 
-        echo "==> Starting Legato service..."
-        ssh -p "${SSH_PORT}" "${SSH_DEST}" "sudo systemctl start legato"
-
-        echo "==> Cleaning up staging files..."
-        ssh -p "${SSH_PORT}" "${SSH_DEST}" "rm -rf /tmp/legato-bootstrap"
-
-        echo "==> Verifying Legato status..."
-        sleep 2
-        ssh -p "${SSH_PORT}" "${SSH_DEST}" "sudo /opt/legato/current/bin/legato status || sudo systemctl status legato --no-pager"
-
-        echo "====================================================================="
-        echo " Bootstrap complete! Legato is active on ${TARGET_IP}."
-        echo "====================================================================="
-        ;;
-
-    --update)
-        if [ $# -lt 1 ]; then
-            echo "ERROR: Target IP required for update." >&2
-            usage
-        fi
-        TARGET_IP="$1"
-        shift
-        if [ $# -gt 0 ] && [ -f "$1" ]; then
-            UPDATE_PKG="$1"
-            shift
-        else
-            UPDATE_PKG="${UPDATE_FILE}"
-        fi
-        USER="${1:-$DEFAULT_USER}"
-        SSH_DEST="${USER}@${TARGET_IP}"
-
-        echo "====================================================================="
-        echo " Pushing update '${UPDATE_PKG}' to ${SSH_DEST}"
-        echo "====================================================================="
-
-        if [ ! -f "${UPDATE_PKG}" ]; then
-            echo "ERROR: Update package '${UPDATE_PKG}' not found." >&2
-            exit 1
-        fi
-
-        # Push directly to target update tool through SSH stream (Legato instsys mechanism)
-        cat "${UPDATE_PKG}" | ssh -p "${SSH_PORT}" "${SSH_DEST}" "sudo /opt/legato/current/bin/update || sudo /legato/systems/current/bin/update"
-
-        echo "==> Update applied successfully."
-        ;;
-
-    --status)
-        if [ $# -lt 1 ]; then
-            echo "ERROR: Target IP required." >&2
-            usage
-        fi
-        TARGET_IP="$1"
-        USER="${2:-$DEFAULT_USER}"
-        SSH_DEST="${USER}@${TARGET_IP}"
-
-        echo "====================================================================="
-        echo " Legato Status on ${SSH_DEST}"
-        echo "====================================================================="
-        ssh -p "${SSH_PORT}" "${SSH_DEST}" "sudo /opt/legato/current/bin/legato status || sudo systemctl status legato --no-pager"
-        echo ""
-        echo "==> Service Directory (sdir list):"
-        ssh -p "${SSH_PORT}" "${SSH_DEST}" "sudo /opt/legato/current/bin/sdir list 2>/dev/null || true"
-        ;;
-
-    --logs)
-        if [ $# -lt 1 ]; then
-            echo "ERROR: Target IP required." >&2
-            usage
-        fi
-        TARGET_IP="$1"
-        USER="${2:-$DEFAULT_USER}"
-        SSH_DEST="${USER}@${TARGET_IP}"
-
-        echo "Streaming logs from ${SSH_DEST} (Ctrl+C to exit)..."
-        ssh -t -p "${SSH_PORT}" "${SSH_DEST}" "sudo journalctl -u legato -f"
-        ;;
-
-    *)
-        # If first arg looks like an IP or hostname, treat as update or status
-        if [[ "${MODE}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || [[ "${MODE}" =~ ^[a-zA-Z0-9.-]+$ ]]; then
-            TARGET_IP="${MODE}"
-            USER="${1:-$DEFAULT_USER}"
-            SSH_DEST="${USER}@${TARGET_IP}"
-            echo "Deploying update to ${SSH_DEST}..."
-            cat "${UPDATE_FILE}" | ssh -p "${SSH_PORT}" "${SSH_DEST}" "sudo /opt/legato/current/bin/update"
-        else
-            echo "ERROR: Unknown option '${MODE}'." >&2
-            usage
-        fi
-        ;;
-esac
+echo
+echo "====================================================================="
+echo " Deployment and Verification Complete!"
+echo "====================================================================="
