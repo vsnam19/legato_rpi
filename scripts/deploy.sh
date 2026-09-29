@@ -8,8 +8,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 CONTAINER_NAME="telaf_simulation_runtime_2204_m"
-CFG_MGR_PKG="${PROJECT_ROOT}/apps/cfgManager/cfgManager.simulation.update"
-CFG_CLIENT_PKG="${PROJECT_ROOT}/samples/cfgClient/cfgClient.simulation.update"
+CFG_MGR_PKG="${PROJECT_ROOT}/vendor/custom/apps/cfgManager/cfgManager.simulation.update"
+CFG_CLIENT_PKG="${PROJECT_ROOT}/vendor/custom/samples/cfgClient/cfgClient.simulation.update"
 
 echo "====================================================================="
 echo " Deploying CfgManager & CfgClient to TelAF Simulation Runtime"
@@ -26,8 +26,8 @@ fi
 
 # 2. Check if update packages exist; if not, build them
 if [ ! -f "${CFG_MGR_PKG}" ] || [ ! -f "${CFG_CLIENT_PKG}" ]; then
-    echo "Update packages not found. Invoking build script..."
-    "${SCRIPT_DIR}/build.sh"
+    echo "Update packages not found. Invoking build script (--standalone)..."
+    "${SCRIPT_DIR}/build.sh" --standalone
 fi
 
 # 3. Copy update packages into runtime container

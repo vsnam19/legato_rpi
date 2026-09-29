@@ -11,6 +11,8 @@ build/
 # Scratch and intermediate files
 .superpowers/
 .cache/
+__pycache__/
+*.pyc
 *.o
 *.so
 *.a

@@ -1,0 +1,7 @@
+// ==============================================================================
+// Qualcomm TelAF Simulation - Integrated System Definition
+// Integrates upstream TelAF simulation system with vendor apps & services
+// ==============================================================================
+
+#include "$TELAF_ROOT/modules/simulation.sdef"
+#include "$PROJECT_ROOT/vendor/custom/vendor.sinc"

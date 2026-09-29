@@ -26,11 +26,17 @@ echo " Running CfgManager Google Test Suite (C++20)"
 echo "====================================================================="
 
 BUILD_DIR="${PROJECT_ROOT}/build/tests"
+if [ -f "${BUILD_DIR}/CMakeCache.txt" ]; then
+    if ! grep -q "vendor/custom/tests" "${BUILD_DIR}/CMakeCache.txt"; then
+        rm -rf "${BUILD_DIR}"
+        mkdir -p "${BUILD_DIR}"
+    fi
+fi
 mkdir -p "${BUILD_DIR}"
 cd "${BUILD_DIR}"
 
 echo "==> Configuring CMake for GTest..."
-cmake "${PROJECT_ROOT}/tests" -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
+cmake "${PROJECT_ROOT}/vendor/custom/tests" -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
 
 echo "==> Building unit test binary..."
 make -j"$(nproc)"
@@ -43,11 +49,11 @@ if [ "${COVERAGE_FLAG}" -eq 1 ]; then
     echo " C2 Branch Coverage Report (gcovr)"
     echo "====================================================================="
     gcovr --root "${PROJECT_ROOT}" \
-          --filter "${PROJECT_ROOT}/components/cfgManager/core/" \
-          --filter "${PROJECT_ROOT}/components/cfgManager/crypto/" \
-          --filter "${PROJECT_ROOT}/components/cfgManager/security/" \
-          --filter "${PROJECT_ROOT}/components/cfgManager/storage/" \
-          --filter "${PROJECT_ROOT}/components/cfgManager/events/" \
+          --filter "${PROJECT_ROOT}/vendor/custom/components/cfgManager/core/" \
+          --filter "${PROJECT_ROOT}/vendor/custom/components/cfgManager/crypto/" \
+          --filter "${PROJECT_ROOT}/vendor/custom/components/cfgManager/security/" \
+          --filter "${PROJECT_ROOT}/vendor/custom/components/cfgManager/storage/" \
+          --filter "${PROJECT_ROOT}/vendor/custom/components/cfgManager/events/" \
           --branches \
           --print-summary || true
 fi
