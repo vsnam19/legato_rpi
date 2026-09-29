@@ -1,0 +1,26 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+start: manual
+executables:
+{
+    client = (printClient)
+}
+
+processes:
+{
+    run:
+    {
+        (client)
+    }
+}
+
+extern:
+{
+    rpcClientPrinter = client.printClient.printer
+}
+
+bindings:
+{
+    client.printClient.taf_someipClnt -> tafSomeipGWSvc.taf_someipClnt
+}

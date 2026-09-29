@@ -1,0 +1,40 @@
+username: telaf
+maxThreads: 600
+start: manual
+sandboxed: true
+
+requires:
+{
+    configTree:
+    {
+        [rw] .
+    }
+}
+
+capability:
+{
+    CAP_WAKE_ALARM
+    CAP_FOWNER
+    CAP_SYS_ADMIN
+    CAP_DAC_READ_SEARCH
+    CAP_DAC_OVERRIDE
+}
+
+executables:
+{
+     testConfigTree = (configComponent)
+}
+
+bindings:
+{
+    testConfigTree.configComponent.le_cfg -> <tafcore>.le_cfg
+    testConfigTree.configComponent.le_cfgAdmin -> <tafcore>.le_cfgAdmin
+}
+
+processes:
+{
+    run:
+    {
+        (testConfigTree)
+    }
+}

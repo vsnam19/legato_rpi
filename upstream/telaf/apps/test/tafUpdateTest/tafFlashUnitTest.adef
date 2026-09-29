@@ -1,0 +1,27 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+
+executables:
+{
+    tafFlashUnitTest = ( tafFlashUnitTest )
+}
+
+start: manual
+
+processes:
+{
+    run:
+    {
+        (tafFlashUnitTest)
+    }
+
+    faultAction: stopApp
+
+    maxFileBytes: 1048576K
+}
+
+bindings:
+{
+    tafFlashUnitTest.tafFlashUnitTest.taf_flash -> tafUpdateSvc.taf_flash
+}

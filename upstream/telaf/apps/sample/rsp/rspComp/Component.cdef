@@ -1,0 +1,19 @@
+sources:
+{
+    main.c
+}
+
+requires:
+{
+    api:
+    {
+        taf_simRsp.api
+        taf_sim.api
+    }
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+}
+

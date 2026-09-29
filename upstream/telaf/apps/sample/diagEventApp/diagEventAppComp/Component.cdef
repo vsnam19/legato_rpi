@@ -1,0 +1,25 @@
+sources:
+{
+    diagEventApp.c
+}
+
+cxxflags:
+{
+    -I$TELAF_ROOT/components/tafDiagSvc/tafDiagCfg
+}
+
+cflags:
+{
+    -I$TELAF_ROOT/components/tafDiagSvc/tafDiagCfg
+}
+
+requires:
+{
+    api:
+    {
+        taf_diagEvent.api
+        taf_diagDTC.api
+        taf_diag.api
+    }
+}
+

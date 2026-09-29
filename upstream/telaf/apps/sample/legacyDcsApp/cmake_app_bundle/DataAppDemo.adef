@@ -1,0 +1,21 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+
+components:
+{
+    DataAppDemoComp
+}
+
+processes:
+{
+    run:
+    {
+        (DataAppDemoExec)
+    }
+}
+
+bindings:
+{
+    *.taf_dcs -> tafDataCallSvc.taf_dcs
+}

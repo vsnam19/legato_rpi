@@ -1,0 +1,18 @@
+{
+    "IWiFiSecurityManager": {
+        "IsSubsystemReady": "SERVICE_AVAILABLE",
+        "IsSubsystemReadyDelay": 300,
+        "registerListener": {
+            "error" : "SUCCESS"
+        },
+        "deregisterListener": {
+            "error" : "SUCCESS"
+        },
+        "removeApFromTrustedList": {
+            "error" : "SUCCESS"
+        },
+        "getTrustedApList": {
+            "error" : "SUCCESS"
+        }
+    }
+}

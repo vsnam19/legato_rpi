@@ -1,0 +1,22 @@
+{
+    "ICryptoAcceleratorManager": {
+        "DefaultCallbackDelay" : 400,
+        "eccPostDigestForVerification": {
+            "status": "SUCCESS",
+            "error": "SUCCESS"
+        },
+        "ecqvPostDataForMultiplyAndAdd": {
+            "status": "SUCCESS",
+            "error": "SUCCESS"
+        },
+        "getAsyncResults": {
+            "error": "SUCCESS"
+        },
+        "eccVerifyDigest": {
+            "error": "SUCCESS"
+        },
+        "ecqvPointMultiplyAndAdd": {
+            "error": "SUCCESS"
+        }
+    }
+}

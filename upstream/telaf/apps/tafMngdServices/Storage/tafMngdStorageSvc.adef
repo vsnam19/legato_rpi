@@ -1,0 +1,92 @@
+
+maxThreads: 600
+
+username: telaf
+startGroup: 11
+
+capability:
+{
+        CAP_WAKE_ALARM
+        CAP_NET_ADMIN
+        CAP_DAC_OVERRIDE
+        CAP_FOWNER
+        CAP_SYS_ADMIN
+        CAP_SYS_PTRACE
+}
+
+groups:
+{
+        system
+        diag
+        radio
+        inet
+        locclient
+}
+
+executables:
+{
+        tafMngdSecDataStorageSvc = ( $TELAF_ROOT/apps/tafMngdServices/Storage/Components/tafMngdSecDataStorageSvc )
+        tafMngdSecFileStorageSvc = ( $TELAF_ROOT/apps/tafMngdServices/Storage/Components/tafMngdSecFileStorageSvc )
+        tafMngdCfgStorageSvc = ( $TELAF_ROOT/apps/tafMngdServices/Storage/Components/tafMngdCfgStorageSvc )
+}
+
+start: auto
+
+processes:
+{
+        run:
+        {
+                (tafMngdSecDataStorageSvc)
+                (tafMngdSecFileStorageSvc)
+                (tafMngdCfgStorageSvc)
+        }
+
+        maxCoreDumpFileBytes: 100000K
+        maxFileBytes: 100000K
+        faultAction: restart
+}
+
+sandboxed: false
+
+bindings:
+{
+    tafMngdCfgStorageSvc.tafMngdCfgStorageSvc.taf_fsc -> tafKeyStoreSvc.taf_fsc
+    tafMngdCfgStorageSvc.tafMngdCfgStorageSvc.le_cfg -> <tafcore>.le_cfg
+    tafMngdCfgStorageSvc.tafMngdCfgStorageSvc.le_cfgAdmin -> <tafcore>.le_cfgAdmin
+    tafMngdCfgStorageSvc.tafMngdCfgStorageSvc.taf_mngdStorSecData -> tafMngdStorageSvc.taf_mngdStorSecData
+    tafMngdSecDataStorageSvc.tafMngdSecDataStorageSvc.taf_ks -> tafKeyStoreSvc.taf_ks
+    tafMngdSecDataStorageSvc.tafMngdSecDataStorageSvc.le_appInfo -> <tafcore>.le_appInfo
+    tafMngdSecFileStorageSvc.tafMngdSecFileStorageSvc.taf_fsc -> tafKeyStoreSvc.taf_fsc
+    tafMngdSecFileStorageSvc.tafMngdSecFileStorageSvc.le_appInfo -> <tafcore>.le_appInfo
+    tafMngdSecFileStorageSvc.tafMngdSecFileStorageSvc.taf_mngdStorSecData -> tafMngdStorageSvc.taf_mngdStorSecData
+}
+
+bundles:
+{
+    file:
+    {
+        [r]  $TELAF_ROOT/apps/tafMngdServices/Storage/Components/config/tafMngdStorageSvc.json  /
+    }
+}
+
+// Directory in which configuration JSONs will be installed
+requires:
+{
+    dir:
+    {
+        /data/ManagedServices /
+    }
+
+    configTree:
+    {
+        [rw] tafMngdCfgStorageSvc
+    }
+
+}
+
+extern:
+{
+    tafMngdSecDataStorageSvc.tafMngdSecDataStorageSvc.taf_mngdStorSecData
+    tafMngdSecFileStorageSvc.tafMngdSecFileStorageSvc.taf_mngdStorSecFile
+    tafMngdCfgStorageSvc.tafMngdCfgStorageSvc.taf_mngdStorCfg
+}

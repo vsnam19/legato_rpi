@@ -1,0 +1,28 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+executables:
+{
+    tafRSimUnitTest = ( tafRSimUnitTestComp )
+}
+
+
+processes:
+{
+    run:
+    {
+        (tafRSimUnitTest)
+    }
+    envVars:
+    {
+        LE_LOG_LEVEL = DEBUG
+    }
+}
+
+start: manual
+
+bindings:
+{
+    tafRSimUnitTest.tafRSimUnitTestComp.taf_simRsim -> tafRemoteSimSvc.taf_simRsim
+}
+

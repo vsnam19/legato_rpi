@@ -1,0 +1,21 @@
+sources:
+{
+    taf_pa_keystore_default.c
+}
+
+requires:
+{
+    api:
+    {
+        taf_ks.api [types-only]
+    }
+}
+
+cflags:
+{
+    -I$LEGATO_ROOT/framework/liblegato/
+    -I$TELAF_ROOT/include
+    -I$TELAF_PA_DEFAULT/include/keyStore
+    -DTAF_PA_DEFAULT
+}
+

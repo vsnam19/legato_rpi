@@ -1,0 +1,18 @@
+sources:
+{
+    tafRSPUnitTest.c
+}
+
+requires:
+{
+    api:
+    {
+        taf_simRsp.api
+    }
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+}
+

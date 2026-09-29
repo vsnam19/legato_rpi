@@ -1,0 +1,33 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+
+executables:
+{
+    tafDataCallUnitTest = ( tafDataCallUnitTestComponent )
+}
+
+start: manual
+
+processes:
+{
+    run:
+    {
+        (tafDataCallUnitTest)
+    }
+
+    faultAction: stopApp
+
+    #if ${LE_CONFIG_SERVICES_WATCHDOG} = y
+        maxWatchdogTimeout: 100000
+    #else
+        watchdogTimeout: never
+    #endif
+}
+
+bindings:
+{
+    tafDataCallUnitTest.tafDataCallUnitTestComponent.taf_dcs -> tafDataCallSvc.taf_dcs
+    tafDataCallUnitTest.tafDataCallUnitTestComponent.taf_mdc -> tafDataCallSvc.taf_mdc
+    tafDataCallUnitTest.tafDataCallUnitTestComponent.taf_sim -> tafSimCardSvc.taf_sim
+}

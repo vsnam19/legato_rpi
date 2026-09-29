@@ -1,0 +1,24 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+executables:
+{
+    tafSimIntTest = ( tafSimTestComp )
+}
+
+
+processes:
+{
+    envVars:
+    {
+        LE_LOG_LEVEL = DEBUG
+    }
+}
+
+start: manual
+
+bindings:
+{
+    tafSimIntTest.tafSimTestComp.taf_sim -> tafSimCardSvc.taf_sim
+}
+

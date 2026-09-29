@@ -1,0 +1,33 @@
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+policy_module(tafAudioSvc, 1.0)
+
+# Framework definition for telaf
+type telaf_tafAudioSvc_exec_t;
+files_type(telaf_tafAudioSvc_exec_t);
+
+type telaf_tafAudioSvc_t;
+
+type telaf_tafAudioSvc_data_t;
+files_type(telaf_tafAudioSvc_data_t);
+
+init_telaf_app_domain(telaf_tafAudioSvc_t,telaf_tafAudioSvc_exec_t)
+
+# Get access for audio voice stream
+ifdef(`sa525m',`
+    telux_allow_audio_voice(telaf_tafAudioSvc_t)
+    telux_allow_audio_play(telaf_tafAudioSvc_t)
+    telux_allow_audio_factory_test(telaf_tafAudioSvc_t)
+    telux_allow_audio_capture(telaf_tafAudioSvc_t)
+    telux_allow_audio_voice_data(telaf_tafAudioSvc_t)
+    telux_allow_tel_call_info_read(telaf_tafAudioSvc_t)
+    telux_allow_tel_call_mgmt(telaf_tafAudioSvc_t)
+')
+
+# Allow update daemon to install/uninstall this service
+telaf_admin_manage_all_files_perms(telaf_tafAudioSvc_data_t)
+telaf_admin_manage_all_files_perms(telaf_tafAudioSvc_exec_t)
+
+# use VHAL driver object
+telaf_load_vhal_modules(telaf_tafAudioSvc_t)

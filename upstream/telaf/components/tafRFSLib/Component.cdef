@@ -1,0 +1,36 @@
+sources:
+{
+    tafRFSLib.cpp
+}
+
+requires:
+{
+    lib:
+    {
+    #if ${LE_CONFIG_ENABLE_SELINUX} =y
+        lib/libselinux.so.1
+    #endif
+    }
+}
+
+cxxflags:
+{
+    -I$TELAF_ROOT/include
+    -I$LEGATO_ROOT/framework/liblegato/
+    -DRFS_MAX_BACKUP_FILE_SIZE=10240
+    -DRFS_MAX_BACKUP_FILE_COUNT=100
+}
+
+cflags:
+{
+    -I$TELAF_ROOT/include
+    -I$LEGATO_ROOT/framework/liblegato/
+    -DRFS_MAX_BACKUP_FILE_SIZE=10240
+    -DRFS_MAX_BACKUP_FILE_COUNT=100
+}
+
+ldflags:
+{
+    -lssl
+    -lcrypto
+}

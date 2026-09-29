@@ -1,0 +1,45 @@
+provides:
+{
+    api:
+    {
+        le_wdog.api
+    }
+}
+
+requires:
+{
+    api:
+    {
+        le_cfg.api
+        le_instStat.api
+        le_appInfo.api [manual-start]
+        configTreeWdog   = watchdog/frameworkWdog.api
+        logDaemonWdog    = watchdog/frameworkWdog.api
+        updateDaemonWdog = watchdog/frameworkWdog.api
+
+        // Manual start after notifying supervisor of start -- otherwise watchdog hangs on start.
+        supervisor/wdog.api [manual-start]
+        supervisorWdog   = watchdog/frameworkWdog.api [manual-start]
+    }
+
+    component:
+    {
+    #if ${LE_CONFIG_TARGET_SIMULATION} = y
+        $TELAF_ROOT/simulation/stub/taf_simula_wdog
+    #elif ${LE_CONFIG_FLAVOR_LXC} = y
+        $TELAF_ROOT/simulation/stub/taf_simula_wdog
+    #else
+        $TELAF_ROOT/components/tafWatchdog/taf_pa_wdog
+    #endif
+    }
+}
+
+cflags:
+{
+    -I$LEGATO_ROOT/framework/daemons/linux/watchdog/inc
+}
+
+sources:
+{
+    watchdog.c
+}

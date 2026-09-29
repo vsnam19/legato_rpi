@@ -1,0 +1,52 @@
+username: telaf
+startGroup: 20
+
+sandboxed: false
+start: manual
+maxThreads: 600
+
+capability:
+{
+        CAP_WAKE_ALARM
+        CAP_NET_BIND_SERVICE
+        CAP_NET_ADMIN
+        CAP_DAC_OVERRIDE
+        CAP_DAC_READ_SEARCH
+}
+
+groups:
+{
+        system
+        diag
+        radio
+        inet
+}
+
+executables:
+{
+    tafWlanSvc = ( $TELAF_ROOT/components/tafWlan/tafWlanSvc )
+}
+
+processes:
+{
+    run:
+    {
+        (tafWlanSvc)
+    }
+
+    maxCoreDumpFileBytes: 100000K
+    maxFileBytes: 100000K
+    faultAction: stopApp
+}
+
+extern:
+{
+    tafWlanSvc.tafWlanSvc.taf_wlan
+    tafWlanSvc.tafWlanSvc.taf_wlanAp
+    tafWlanSvc.tafWlanSvc.taf_wlanSta
+}
+
+bindings:
+{
+    tafWlanSvc.tafWlanSvc.le_appInfo -> <tafcore>.le_appInfo
+}

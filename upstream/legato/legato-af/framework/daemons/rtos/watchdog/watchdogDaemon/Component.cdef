@@ -1,0 +1,25 @@
+provides:
+{
+   api:
+    {
+        le_wdog.api
+    }
+}
+requires:
+{
+    component:
+    {
+        $TELAF_ROOT/components/tafWatchdog/taf_pa_wdog
+    }
+}
+
+cflags:
+{
+    -I${LEGATO_ROOT}/framework/daemons/rtos/microSupervisor/
+    -I${LEGATO_ROOT}/framework/daemons/rtos/watchdog/inc/
+}
+
+sources:
+{
+    wdog.c
+}

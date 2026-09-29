@@ -1,0 +1,39 @@
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+policy_module(tafVoiceCallSvc, 1.0)
+
+gen_require(`
+  type tmp_t;
+')
+
+# Framework definition for telaf
+type telaf_tafVoiceCallSvc_exec_t;
+files_type(telaf_tafVoiceCallSvc_exec_t);
+
+type telaf_tafVoiceCallSvc_t;
+
+type telaf_tafVoiceCallSvc_data_t;
+files_type(telaf_tafVoiceCallSvc_data_t);
+
+init_telaf_app_domain(telaf_tafVoiceCallSvc_t,telaf_tafVoiceCallSvc_exec_t)
+
+# read VoiceCallInfo file
+allow telaf_tafVoiceCallSvc_t tmp_t:file { manage_file_perms};
+allow telaf_tafVoiceCallSvc_t tmp_t:dir { manage_dir_perms };
+
+# Getting Telephone calls information
+ifdef(`sa525m',`
+    telux_allow_tel_call_info_read(telaf_tafVoiceCallSvc_t)
+    telux_allow_tel_call_mgmt(telaf_tafVoiceCallSvc_t)
+    telux_allow_tel_subscription_read(telaf_tafVoiceCallSvc_t)
+    telux_allow_tel_call_private_info(telaf_tafVoiceCallSvc_t)
+    telux_allow_tel_ecall_mgmt(telaf_tafVoiceCallSvc_t)
+')
+
+# Allow update daemon to install/uninstall this service
+telaf_admin_manage_all_files_perms(telaf_tafVoiceCallSvc_data_t)
+telaf_admin_manage_all_files_perms(telaf_tafVoiceCallSvc_exec_t)
+
+
+

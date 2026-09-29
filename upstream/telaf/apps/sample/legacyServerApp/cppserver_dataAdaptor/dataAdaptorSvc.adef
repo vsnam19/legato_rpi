@@ -1,0 +1,21 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+
+components:
+{
+    dataAdaptorComp
+}
+
+processes:
+{
+    run:
+    {
+        ( DataAdaptorExec )
+    }
+}
+
+bindings:
+{
+    *.taf_dcs -> tafDataCallSvc.taf_dcs
+}

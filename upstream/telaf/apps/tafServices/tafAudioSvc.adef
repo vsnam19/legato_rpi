@@ -1,0 +1,65 @@
+requires:
+{
+    configTree:
+    {
+        [r] .
+    }
+}
+
+maxThreads: 600
+
+username: telaf
+
+startGroup: 12
+
+groups:
+{
+        system
+        diag
+        radio
+        inet
+        locclient
+}
+
+capability:
+{
+        CAP_WAKE_ALARM
+        CAP_NET_BIND_SERVICE
+        CAP_NET_ADMIN
+        CAP_DAC_OVERRIDE
+#if ${LE_CONFIG_TEST_COVERAGE} = y
+        CAP_DAC_READ_SEARCH
+#endif
+}
+
+executables:
+{
+        tafAudioSvc = ( $TELAF_ROOT/components/tafAudioSvc )
+}
+
+start: auto
+
+processes:
+{
+        run:
+        {
+                (tafAudioSvc)
+        }
+
+        maxCoreDumpFileBytes: 100000K
+        maxFileBytes: 100000K
+        faultAction: restart
+}
+
+sandboxed: false
+
+bindings:
+{
+    tafAudioSvc.tafAudioSvc.taf_mngdPm -> tafMngdPMSvc.taf_mngdPm
+}
+
+extern:
+{
+        tafAudioSvc.tafAudioSvc.taf_audio
+        tafAudioSvc.tafAudioSvc.taf_audioVendor
+}

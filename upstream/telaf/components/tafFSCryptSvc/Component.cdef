@@ -1,0 +1,43 @@
+sources:
+{
+    tafFSCrypt.c
+}
+
+cflags:
+{
+    -I${LEGATO_ROOT}/framework/liblegato
+    -I$TELAF_PA_DEFAULT/include/keyStore
+}
+
+requires:
+{
+    component:
+    {
+#if ${LE_CONFIG_TARGET_SIMULATION} = y
+        $TELAF_ROOT/simulation/stub/keyStore/taf_pa_fscrypt
+#else
+        $TELAF_PA_DEFAULT/component/keyStore/taf_pa_fscrypt_default
+        $LEGATO_BUILD/stub/component/taf_pa_fscrypt
+#endif
+    }
+
+    api:
+    {
+        taf_pm.api
+        taf_ks.api
+    }
+}
+
+provides:
+{
+    api:
+    {
+        taf_fsc.api
+    }
+}
+
+ldflags:
+{
+   -lssl
+   -lcrypto
+}

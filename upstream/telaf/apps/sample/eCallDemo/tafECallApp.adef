@@ -1,0 +1,40 @@
+maxThreads: 600
+sandboxed: false
+executables:
+{
+    tafECallApp = ( eCallAppComp )
+}
+
+
+processes:
+{
+    run:
+    {
+        (tafECallApp)
+    }
+    envVars:
+    {
+        LE_LOG_LEVEL = DEBUG
+    }
+}
+
+bundles:
+{
+    file:
+    {
+        [r]     audio/record.wav  /
+    }
+}
+
+start: manual
+
+bindings:
+{
+    tafECallApp.eCallAppComp.taf_ecall -> tafECallSvc.taf_ecall
+    tafECallApp.eCallAppComp.taf_locGnss -> tafLocationSvc.taf_locGnss
+    tafECallApp.eCallAppComp.taf_locPos -> tafLocationSvc.taf_locPos
+    tafECallApp.eCallAppComp.taf_locPosCtrl -> tafLocationSvc.taf_locPosCtrl
+    tafECallApp.eCallAppComp.taf_gpio -> tafGpioSvc.taf_gpio
+    tafECallApp.eCallAppComp.taf_audio -> tafAudioSvc.taf_audio
+}
+

@@ -1,0 +1,51 @@
+provides:
+{
+    api:
+    {
+        taf_devInfo.api
+    }
+}
+
+ldflags:
+{
+    -L$TELAF_DEFAULT_PA_LIB_DIR/lib
+}
+
+requires:
+{
+    api:
+    {
+    }
+
+    component:
+    {
+        $LEGATO_ROOT/components/watchdogChain
+    }
+
+    lib:
+    {
+        libComponent_taf_pa_deviceinfo.so
+        libComponent_taf_pa_deviceinfoDef.so
+    }
+
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+    -I$LEGATO_ROOT/components/cfgEntries
+    -I$TELAF_ROOT/include
+    -I$TELAF_PA_DEFAULT/include
+    -DTAFPA_ENABLE_LEGACY_MACROS=1
+}
+
+cflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+}
+
+sources:
+{
+    tafDevInfoSvc.cpp
+    tafDevInfoImpl.cpp
+}

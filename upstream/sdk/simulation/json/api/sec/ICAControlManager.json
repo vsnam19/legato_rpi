@@ -1,0 +1,13 @@
+{
+    "ICAControlManager": {
+        "registerListener": {
+            "error" : "SUCCESS"
+        },
+        "deregisterListener": {
+            "error" : "SUCCESS"
+        },
+        "getCapacity": {
+            "error" : "SUCCESS"
+        }
+    }
+}

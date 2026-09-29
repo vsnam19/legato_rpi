@@ -1,0 +1,8 @@
+{
+    "IDataLinkManager": {
+            "eth0Config" : {
+                    "ethLinkState" : "DOWN",
+                    "ethModes": ["USXGMII_10G", "USXGMII_5G", "SGMII_1G"]
+            }
+    }
+}

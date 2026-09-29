@@ -1,0 +1,30 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+
+executables:
+{
+    tafCanUnitTest = ( tafCanUnitTestComp )
+}
+
+processes:
+{
+    run:
+    {
+        (tafCanUnitTest)
+    }
+
+    envVars:
+    {
+        LE_LOG_LEVEL = DEBUG
+    }
+
+    faultAction: stopApp
+}
+
+start: manual
+
+bindings:
+{
+    tafCanUnitTest.tafCanUnitTestComp.taf_can -> tafCanSvc.taf_can
+}

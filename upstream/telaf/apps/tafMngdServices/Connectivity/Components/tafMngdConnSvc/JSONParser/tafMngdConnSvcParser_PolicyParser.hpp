@@ -1,0 +1,194 @@
+/*
+ *  Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ *  SPDX-License-Identifier: BSD-3-Clause-Clear
+ */
+
+
+//-----------------------------------------------------------
+
+/*! \page tafMngdConnSvcParser_Policy Managed Connectivity Service Policy Parser
+ * This module parses policy JSON files and  updates relevant configuration objects and
+ * structures for use by other components.
+ *
+*/
+/**
+ * \file tafMngdConnSvcParser_PolicyParser.hpp
+ * tafMngdConnSvcParser_PolicyParser.hpp provides policy parsing module.
+ *
+ */
+//-----------------------------------------------------------
+#pragma once
+
+#include <stdint.h>
+#include <map>
+#include "legato.h"
+#include "interfaces.h"
+#include "tafMngdConn_Common.hpp"
+#include "tafMngdSvcJSONParser_Helper.hpp"
+
+
+namespace tafsvc {
+    typedef struct
+    {
+        uint8_t Priority;
+        uint8_t Use_Data_ID;
+    } mcs_Policy_DataConnection_t;
+
+    typedef struct
+    {
+        mcs_Yes_No_t Enable; //Yes=1, No=0
+        uint8_t NumConnections;
+    } mcs_Policy_MultiDataSession_t;
+
+    typedef struct
+    {
+        mcs_Policy_ConnRecoveryLevel_t Level; //L1=1, L2=2, L3=3, None=0
+        uint8_t  StartWaitTime;               // In seconds.
+        uint16_t RetryWaitTime;               // In seconds.
+        uint8_t  RadioOffOnInterval;        // In seconds.
+        uint8_t  SimOffOnInterval;          // In seconds.
+        mcs_Yes_No_t AllowCancel;             //Yes=1, No=0
+        mcs_Yes_No_t VerifyCancelingApp;      //Yes=1, No=0
+    } mcs_Policy_ConnectivityRecovery_t;
+
+    typedef struct
+    {
+        mcs_Yes_No_t Enable;                    //Yes=1, No=0
+        mcs_Yes_No_t VerifyCallingApp;          //Yes=1, No=0
+        uint8_t  MinTimeBetweenTriggers;        // In seconds.
+        uint16_t  MaxTimeBetweenTriggers;        // In seconds.
+    } mcs_Policy_AppMngdConnectivityRecovery_t;
+
+    typedef struct
+    {
+        uint8_t StartDataTimeout;
+        uint8_t StopDataTimeout;
+    } mcs_Policy_APIManagement_t;
+
+    typedef struct
+    {
+        uint8_t dataConnectionCount; // Not part of the JSON. It is filled by the parser.
+        mcs_Policy_DataConnection_t \
+                            DataConnection[MCS_MAX_DATA_CONNECION_OBJECT_COUNT];
+        mcs_Policy_MultiDataSession_t MultiDataSession;
+        mcs_Policy_ConnectivityRecovery_t ConnectivityRecovery;
+        mcs_Policy_AppMngdConnectivityRecovery_t AppMngdConnectivityRecovery;
+        mcs_Policy_APIManagement_t APIManagement;
+    } mcs_Policy_DataSession_t;
+
+    typedef struct
+    {
+        mcs_JSON_Version_t Version; // Not part of the JSON. It is filled by the parser.
+        char Name[MCS_MAX_NAME_LEN];
+        mcs_Policy_DataSession_t DataSession;
+    } mcs_Policy_t;
+
+    // Class is declared here and defined later
+    class mcs_PolicyParser;
+    }
+
+
+class tafsvc::mcs_PolicyParser
+{
+private:
+
+    // Private constructor
+    mcs_PolicyParser(){};
+
+    // Used to validate if the proprety values conform to expected types
+    typedef bool (*PolicyValidationFunction_t)(mcs_Policy_t& Policy,
+                                                                std::string Value,
+                                                                int Index);
+
+    // Validate received values via callback
+    // Map of properties and validation function pointers
+    std::map< std::string, PolicyValidationFunction_t >  PolicyValidationFuncMap;
+    void UpdateValidPolicyFuncMap(void);
+
+    // MCSP = ManagedConnectivityServicePolicy
+    static bool Validate_MCSP_Name (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+
+    // DS_DC = DataSession/DataConnection
+    static bool Validate_DS_DC_Priority (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_DC_Use_Data_ID (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    //DS_MDS = DataSession/MultiDataSession
+    static bool Validate_DS_MDS_Enable (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_MDS_NumConnections (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_MDS_Use_Data_IDs (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    //DS_CR = DataSession/ConnectionRecovery
+    static bool Validate_DS_CR_Level (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_CR_StartWaitTime (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_CR_RetryWaitTime (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_CR_RadioOffOnInterval (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_CR_SimOffOnInterval (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_CR_AllowCancel (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_CR_VerifyCancelingApp (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_AMCR_Enable (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_AMCR_VerifyCallingApp (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_AMCR_MinTimeBetweenTriggers (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_AMCR_MaxTimeBetweenTriggers (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_APIM_StartDataTimeout (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+    static bool Validate_DS_APIM_StopDataTimeout (mcs_Policy_t &Policy,
+                                                        std::string Value,
+                                                        int Index);
+
+    bool ValidateValue(mcs_Policy_t &Policy,
+                       std::string property,
+                       std::string Value,
+                       int Index);
+    bool ParseAndUpdatePolicyJSON(mcs_Policy_t &Policy, std::string filename);
+
+public:
+    // Delete copy constructor.
+    mcs_PolicyParser           (mcs_PolicyParser const &) = delete;
+    mcs_PolicyParser &operator=(mcs_PolicyParser const &) = delete;
+
+    static mcs_PolicyParser& getInstance();
+
+    /**
+     * \brief Reset the Policy structure
+     *
+     */
+    void ResetPolicyStructure(mcs_Policy_t &Policy);
+    /**
+     * \brief Return a pointer to the Policy structure
+     *
+     */
+    bool GetPolicy(mcs_Policy_t& Policy, std::string ConfigurationFileName);
+};

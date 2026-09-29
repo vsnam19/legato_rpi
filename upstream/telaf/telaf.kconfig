@@ -1,0 +1,109 @@
+#
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+#
+
+menu "TelAF"
+
+### "Hidden" Options ###
+config PLATFORM_COMMON_OPTION
+  bool
+  default n
+
+config TELAF_VERSION
+  string "TelAF Version"
+  default "$(TELAF_VERSION)" if !$(empty,$(TELAF_VERSION))
+  default "telaf.lnx.1.1-xxxxxx"
+
+config APP_CFG_TREE_PATH
+  string "Config tree path for application"
+  default "/data/persist/telaf/config"
+  ---help---
+  Set the path for not system config tree.
+  Please also create this some path in boot up script.
+
+config ENABLE_DLT_LOGGING
+  bool "Enable DLT logging"
+  depends on LINUX && TARGET_SA525M
+  default $(b2k,$(ENABLE_DLT_LOGGING))
+  ---help---
+  Enable DLT logging. Syslogd is used if DLT logging is not enabled.
+
+config DLT_APP_ID
+  string "Application ID"
+  depends on ENABLE_DLT_LOGGING
+  default "$(def,$(DLT_APP_ID),TAFA)"
+  ---help---
+  Set DLT application ID if DLT logging is enabled.
+
+config DLT_CTX_ID
+  string "Context ID"
+  depends on ENABLE_DLT_LOGGING
+  default "$(def,$(DLT_CTX_ID),TAFC)"
+  ---help---
+  Set DLT context ID if DLT logging is enabled.
+
+config AUDIO_MULTI_FORMAT_PB_SUPPORTED
+  bool "TelAF multi format playback supported"
+  default "$(b2k,$(AUDIO_MULTI_FORMAT_PB_SUPPORTED))" if !$(empty,$(AUDIO_MULTI_FORMAT_PB_SUPPORTED))
+  default y
+
+# For Vendor Stack
+config DIAG_VSTACK
+  bool "QC or VStack"
+  default "$(b2k,$(VSTACK))" if !$(empty,$(VSTACK))
+  default n
+  ---help---
+  Build with QC STACK or Vendor STACK
+
+# Diag for feature A
+config DIAG_FEATURE_A
+  bool "Common or feature A"
+  default "$(b2k,$(DIAG_FEATURE_A))" if !$(empty,$(DIAG_FEATURE_A))
+  default n
+  ---help---
+  Build for common or feature A
+
+config LIMIT_APP_START_GROUP
+  int "Limit start up group number for APP"
+  range 0 31
+  default 10
+  ---help---
+  Applications with a startGroup number greater than this value will not
+  be started by the supervisor during initialization; they need to be
+  started by another group controller. Applications without a startGroup
+  number will be assigned the value 31.
+
+config SUPPORT_APP_UPDATE_WITH_OVERLAY
+  bool "Enable overlaying dir '/app' for individual APP update"
+  default "$(b2k,$(SUPPORT_APP_UPDATE_WITH_OVERLAY))" if !$(empty,$(SUPPORT_APP_UPDATE_WITH_OVERLAY))
+  default n
+  ---help---
+  Support overlay for the 'appsWriteable' and 'current' directories,
+  allowing the APP to be updated individually on the target device.
+  Before enabling this, please ensure that the dir '/app' is writeable.
+
+config ENABLE_TEST_APPS
+  bool "Enable test apps"
+  default "$(b2k,$(ENABLE_TEST_APPS))" if !$(empty,$(ENABLE_TEST_APPS))
+  default n
+  ---help---
+  Build test apps in telaf test image
+
+menu "apps"
+rsource "apps/KConfig"
+endmenu # end "apps"
+
+menu "components"
+rsource "components/KConfig"
+endmenu # end "components"
+
+menu "framework"
+rsource "framework/daemons/linux/deviceManager/KConfig"
+endmenu # end "framework"
+
+menu "simulation"
+rsource "simulation/simulation.kconfig"
+endmenu # end "simulation"
+
+endmenu # end "TelAF"

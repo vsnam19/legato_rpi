@@ -1,0 +1,31 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+executables:
+{
+    tafECallIntTest = ( $TELAF_ROOT/apps/test/tafECallTest/tafECallIntTest/tafECallIntTestComponent )
+}
+
+
+processes:
+{
+    run:
+    {
+        ( tafECallIntTest )
+    }
+    envVars:
+    {
+        LE_LOG_LEVEL = DEBUG
+    }
+}
+
+start: manual
+
+bindings:
+{
+    tafECallIntTest.tafECallIntTestComponent.taf_ecall -> tafECallSvc.taf_ecall
+    tafECallIntTest.tafECallIntTestComponent.taf_locGnss -> tafLocationSvc.taf_locGnss
+    tafECallIntTest.tafECallIntTestComponent.taf_locPos -> tafLocationSvc.taf_locPos
+    tafECallIntTest.tafECallIntTestComponent.taf_locPosCtrl -> tafLocationSvc.taf_locPosCtrl
+}
+

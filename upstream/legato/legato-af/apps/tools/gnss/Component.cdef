@@ -1,0 +1,14 @@
+requires:
+{
+    api:
+    {
+        le_gnss = taf_locGnss.api
+        le_pos = taf_locPos.api
+        le_posCtrl = taf_locPosCtrl.api
+    }
+}
+
+sources:
+{
+    gnss.c
+}

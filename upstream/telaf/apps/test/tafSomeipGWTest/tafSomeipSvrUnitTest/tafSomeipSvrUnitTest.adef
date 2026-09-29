@@ -1,0 +1,22 @@
+username: telaf
+maxThreads: 600
+start: manual
+sandboxed: false
+
+executables:
+{
+    tafSomeipSvrUnitTest = ( tafSomeipSvrUnitTestComp )
+}
+
+processes:
+{
+    run:
+    {
+        ( tafSomeipSvrUnitTest )
+    }
+}
+
+bindings:
+{
+    tafSomeipSvrUnitTest.tafSomeipSvrUnitTestComp.taf_someipSvr -> tafSomeipGWSvc.taf_someipSvr
+}

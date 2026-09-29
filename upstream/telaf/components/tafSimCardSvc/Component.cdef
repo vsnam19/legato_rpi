@@ -1,0 +1,52 @@
+provides:
+{
+    api:
+    {
+        taf_sim.api
+        taf_simRsp.api
+    }
+}
+
+requires:
+{
+    component:
+    {
+        $LEGATO_ROOT/components/watchdogChain
+    }
+
+    lib:
+    {
+        lib/libtelux_tel.so
+        lib/libtelux_common.so
+        libComponent_taf_pa_sim.so
+        libComponent_taf_pa_simDef.so
+    }
+
+    api:
+    {
+        taf_pm.api
+    }
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+    -I$TELAF_ROOT/include
+    -ltelux_tel
+    -ltelux_common
+    -I$TELAF_PA_DEFAULT/include
+    -std=c++17
+    -DTAFPA_ENABLE_LEGACY_MACROS=1
+}
+ldflags:
+{
+    -L$TELAF_DEFAULT_PA_LIB_DIR/lib
+}
+
+sources:
+{
+    tafSimCardImpl.cpp
+    tafSimCardSvc.cpp
+    tafRSP.cpp
+    tafRSPImpl.cpp
+}

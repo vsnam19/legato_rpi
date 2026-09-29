@@ -1,0 +1,16 @@
+sources:
+{
+    tafECallIntTest.cpp
+}
+
+requires:
+{
+    api:
+    {
+        taf_ecall.api
+        taf_locPos.api
+        taf_locPosCtrl.api
+        taf_locGnss.api
+    }
+}
+

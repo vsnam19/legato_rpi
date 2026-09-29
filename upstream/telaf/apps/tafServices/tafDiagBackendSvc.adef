@@ -1,0 +1,48 @@
+sandboxed: false
+
+start: auto
+
+maxThreads: 600
+
+startGroup: 20
+username: telaf
+
+capability:
+{
+        CAP_WAKE_ALARM
+        CAP_NET_ADMIN
+#if ${LE_CONFIG_TEST_COVERAGE} = y
+        CAP_DAC_READ_SEARCH
+        CAP_DAC_OVERRIDE
+#endif
+}
+
+executables:
+{
+    tafDiagBackendSvc = ( $TELAF_ROOT/components/tafDiagBackendSvc )
+}
+
+groups:
+{
+}
+
+processes:
+{
+    run:
+    {
+        (tafDiagBackendSvc)
+    }
+
+    maxCoreDumpFileBytes: 100000K
+    maxFileBytes: 100000K
+    faultAction: restart
+}
+
+bindings:
+{
+}
+
+extern:
+{
+    tafDiagBackendSvc.tafDiagBackendSvc.taf_diagBackend
+}

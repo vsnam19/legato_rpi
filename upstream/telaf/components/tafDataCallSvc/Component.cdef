@@ -1,0 +1,52 @@
+provides:
+{
+    api:
+    {
+        $TELAF_ROOT/interfaces/taf_dcs.api
+        $TELAF_ROOT/interfaces/taf_mdc.api
+    }
+}
+
+requires:
+{
+#if ${LE_CONFIG_TARGET_SIMULATION} = y
+component:
+    {
+       $TELAF_PA_DEFAULT/component/taf_pa_dataDef
+       $TELAF_PA/component/taf_pa_data
+    }
+#else
+    lib:
+    {
+        libComponent_taf_pa_data.so
+        libComponent_taf_pa_dataDef.so
+    }
+#endif
+    api:
+    {
+        taf_pm.api
+    }
+}
+
+cxxflags:
+{
+    -I$TELAF_ROOT/include
+    -I$TELAF_PA_DEFAULT/include
+    -I$TELAF_PA_DEFAULT/include/data
+    -std=c++17
+}
+
+ldflags:
+{
+    -L$TELAF_DEFAULT_PA_LIB_DIR/lib
+}
+
+sources:
+{
+    main.cpp
+    tafDcsSvc.cpp
+    tafDcsSvcImpl.cpp
+    tafDcsProfileImpl.cpp
+    tafDcsProfileManagerImpl.cpp
+    tafDcsUtils.cpp
+}

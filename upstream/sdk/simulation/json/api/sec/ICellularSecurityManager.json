@@ -1,0 +1,13 @@
+{
+    "ICellularSecurityManager": {
+        "registerListener": {
+            "error" : "SUCCESS"
+        },
+        "deRegisterListener": {
+            "error" : "SUCCESS"
+        },
+        "getCurrentSessionStats": {
+            "error" : "SUCCESS"
+        }
+    }
+}

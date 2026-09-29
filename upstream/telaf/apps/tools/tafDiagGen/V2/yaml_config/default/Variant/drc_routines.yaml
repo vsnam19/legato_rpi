@@ -1,0 +1,41 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+domain_name: Variant
+
+routines_all:
+  0x0246:
+    identifier: 0x0246
+    execution_authorization_pattern: secured_configuration
+    request:
+      sub_function: [ 0x01, 0x02, 0x03 ]
+      control_option_record:
+        start: Base1
+        stop: Base2
+        result: Base3
+  0x0247:
+    identifier: 0x0247
+    execution_authorization_pattern: secured_configuration
+    request:
+      sub_function: [ 0x01, 0x02, 0x03 ]
+      control_option_record:
+        start: Base4
+        stop: Base5
+        result: Base6
+  0x0248:
+    identifier: 0x0248
+    execution_authorization_pattern: secured_configuration
+    request:
+      sub_function: [ 0x01, 0x02, 0x03 ]
+      control_option_record:
+        start: Base4
+        stop:
+  0x0249:
+    identifier: 0x0249
+    execution_authorization_pattern: secured_configuration
+    request:
+      sub_function: [ 0x01, 0x02, 0x03 ]
+      control_option_record:
+        start:
+        stop:
+        result:

@@ -1,0 +1,31 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+
+executables:
+{
+    tafRadioUnitTest = ( tafRadioUnitTest )
+}
+
+start: manual
+
+processes:
+{
+    run:
+    {
+        (tafRadioUnitTest)
+    }
+
+    faultAction: stopApp
+
+    #if ${LE_CONFIG_SERVICES_WATCHDOG} = y
+        maxWatchdogTimeout: 100000
+    #else
+        watchdogTimeout: never
+    #endif
+}
+
+bindings:
+{
+    tafRadioUnitTest.tafRadioUnitTest.taf_radio -> tafRadioSvc.taf_radio
+}

@@ -1,0 +1,62 @@
+provides:
+{
+    api:
+    {
+        taf_ecall.api
+    }
+}
+
+ldflags:
+{
+    -L$TELAF_DEFAULT_PA_LIB_DIR/lib
+}
+
+requires:
+{
+    api:
+    {
+        le_cfg.api
+    }
+
+    api:
+    {
+        taf_sim.api
+    }
+
+    component:
+    {
+        $LEGATO_ROOT/components/watchdogChain
+        $TELAF_ROOT/components/tafHalComp
+    }
+
+    lib:
+    {
+
+        libComponent_taf_pa_ecall.so
+        libComponent_taf_pa_ecallDef.so
+    }
+
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+    -I$LEGATO_ROOT/components/cfgEntries
+    -I$TELAF_ROOT/components/tafHalComp
+    -I$TELAF_ROOT/include/vhal
+    -I$TELAF_ROOT/include
+    -I$TELAF_PA_DEFAULT/include
+    -std=c++17
+}
+
+cflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+}
+
+sources:
+{
+    tafECallImpl.cpp
+    tafECallSvc.cpp
+}
+

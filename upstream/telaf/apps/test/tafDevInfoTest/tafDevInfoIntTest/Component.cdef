@@ -1,0 +1,12 @@
+sources:
+{
+    tafDevInfoIntTest.cpp
+}
+
+requires:
+{
+    api:
+    {
+        taf_devInfo.api
+    }
+}

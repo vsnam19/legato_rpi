@@ -1,0 +1,11 @@
+sources:
+{
+    taf_pa_fscrypt_default.c
+}
+
+cflags:
+{
+    -I$LEGATO_ROOT/framework/liblegato/
+    -I$TELAF_PA_DEFAULT/include/keyStore
+    -DTAF_PA_DEFAULT
+}

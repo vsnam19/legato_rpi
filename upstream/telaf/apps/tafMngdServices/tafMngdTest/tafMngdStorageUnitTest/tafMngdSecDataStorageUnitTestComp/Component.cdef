@@ -1,0 +1,17 @@
+sources:
+{
+    tafMngdSecDataStorageUnitTest.c
+}
+
+requires:
+{
+    api:
+    {
+        taf_mngdStorSecData.api
+    }
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+}

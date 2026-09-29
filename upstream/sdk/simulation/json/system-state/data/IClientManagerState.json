@@ -1,0 +1,16 @@
+{
+  "IClientManager": {
+    "deviceUsageStats": [
+      {
+        "macAddress": "00:03:7f:21:87:49",
+        "bytesRx": 0,
+        "bytesTx": 0
+      },
+      {
+        "macAddress": "01:03:7f:21:87:49",
+        "bytesRx": 0,
+        "bytesTx": 0
+      }
+    ]
+  }
+}

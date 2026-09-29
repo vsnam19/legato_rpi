@@ -1,0 +1,12 @@
+sources:
+{
+    diagApp.c
+}
+
+requires:
+{
+    api:
+    {
+        taf_diagBackend.api
+    }
+}

@@ -1,0 +1,43 @@
+maxThreads: 600
+sandboxed: false
+
+username: telaf
+
+startGroup: 24
+
+capability:
+{
+        CAP_WAKE_ALARM
+#if ${LE_CONFIG_TEST_COVERAGE} = y
+        CAP_DAC_READ_SEARCH
+        CAP_DAC_OVERRIDE
+#endif
+}
+
+executables:
+{
+    tafCanSvc = ( $TELAF_ROOT/components/tafVNW/tafCanSvc )
+}
+
+start: auto
+
+processes:
+{
+    run:
+    {
+        (tafCanSvc)
+    }
+
+    maxCoreDumpFileBytes: 100000K
+    maxFileBytes: 100000K
+    faultAction: restart
+}
+
+bindings:
+{
+}
+
+extern:
+{
+    tafCanSvc.tafCanSvc.taf_can
+}

@@ -1,0 +1,82 @@
+{
+    "ICryptoAcceleratorManager" :
+    {
+        "ecqvCalculation": {
+            "sm2": {
+                "scalar": "d1073b4ebf650afeff597b1f03e751b4296f6b3e12e4ff3161bb605b0fa4c939",
+                "multiplicandPoint": {
+                    "x": "13f00f1eba7493f86ac5a674b014f51137020d9c68a777b70f8c021367352b32",
+                    "y": "b4e6261a3c1bba23af9709ce3b569d17beeda8cee07f0d1d8cb955640003f519"
+                },
+                "addendPoint": {
+                    "x": "5fa93d36f4267a4b668a0362d6a3c05ba5588125f5e5ff0ebc8bf805e538d8f9",
+                    "y": "952960881881f2a5c0e26d0ac1a002ddfd4701e75d0f91acfb95b3084d2f3bf2"
+                },
+                "result": {
+                    "x": "d78494f274974ab2b53985a7a29dfa7cb3cf1475a0dd97f7a13d636dc738a281",
+                    "y": "eda16013b226e00da6da4c4d2802b80fb0596ef641c5470119f7161210ebab35"
+                }
+            },
+            "nistP256": {
+                "scalar": "d1073b4ebf650afeff597b1f03e751b4296f6b3e12e4ff3161bb605b0fa4c939",
+                "multiplicandPoint": {
+                    "x": "79b31142c1d825cc17e5e0dd75d1c272b87e7bd8e0214afc325de3ce83027da6",
+                    "y": "a59693757c9eb591bca621bdb71603bc8fa6bac6d1de3db0f68fb57e9307a9a5"
+                },
+                "addendPoint": {
+                    "x": "5c4840b167b6eab4c2799bbe32137b4c68b5b680117b934d90ce921b1f946de9",
+                    "y": "6fb184e7cb35b24a345a7d402955a30c5b7b595f5698d717d61c9d4c9f3cca40"
+                },
+                "result": {
+                    "x": "a8fa3069b7f0e08be631958ee4472c7b0bf9a4685296dc635c27c6d34ec62b9b",
+                    "y": "2d9435aaa665ece03f83ad0aa041654ce34380c1357eefc71ad897805b6274f3"
+                }
+            },
+            "nistP384": {
+                "scalar": "de010321b91a16d90da6b4f82f924c55b8e3e235e8288f43140e81c092e05d37e8dc5e60245022dab536eeaf34cd19d8",
+                "multiplicandPoint": {
+                    "x": "d750f5e99c57718f8b7f633834f53d4fbbcac6120de775ed0debbb768102c80635a246d736fc8e23a1736ce88cbbbc24",
+                    "y": "59a9adfc29de849001b684b2bb76e0b81a9a5761aed49934ca1def7a60fb519b99c8ed0441d89fc183684a64562d4acc"
+                },
+                "addendPoint": {
+                    "x": "a9445918a5d3250be95222acd5a9bcb91e4a1d5ce79549d695c46185c18afc3dd2f56d11426def5581168c0b58880cf0",
+                    "y": "4d5e21ec157b4a2f452b570ef22d2a8a3e6488519188305dbc7a77c0fd36319db2bdfdf14f036f999f926744cb1a67b5"
+                },
+                "result": {
+                    "x": "691eee8a665de63d2dd984ccd8d393e9f0063b9bea1da78ff9d9ca2a7b51d3797261237d7a17205c4c39bf7146b45c29",
+                    "y": "d0057cfec933486a23c81dffe95eba80957e1fd004f926974173d86a8813830809eeb53ee335999444a34eeaf5296bbb"
+                }
+            },
+            "brainpoolP256": {
+                "scalar": "d1073b4ebf650afeff597b1f03e751b4296f6b3e12e4ff3161bb605b0fa4c939",
+                "multiplicandPoint": {
+                    "x": "09fd1e2f36621d2c92a94551cc09fa0f4baa5f619bd4f75079fe55981950da24",
+                    "y": "71f51d1f65f6dbd625e2120ecd3ebc2eaac8288f9053331448bb28ff6f620846"
+                },
+                "addendPoint": {
+                    "x": "357542eaa485d86f0fc52365a0f592c73be3cb726362ab169b29e823560c625f",
+                    "y": "1d41e8e8bb247b09d749c55d2a14b73d6b12a02b1077ac1192323b097d31a188"
+                },
+                "result": {
+                    "x": "d530de5d303343a9d4e9e118766eda6c2e147844305ed9605a25503eae59183e",
+                    "y": "da05ede46f66723a90c27da0f185e3fb3f0b48dec3142096817d12c38ab07e30"
+                }
+            },
+            "brainpoolP384": {
+                "scalar": "6096de60f60d8ad0dce77cbb42e8660a44845f29c2795c4c5d3ec092b9304fa64d453a297de45d2d80496c5b293f1d70",
+                "multiplicandPoint": {
+                    "x": "d2a10763b8280b5e761bada765d93186c3caef273583cabaee4569a1af1e0c6d073175f37545efe04e883d39e0cd4f47",
+                    "y": "6187ef4188d71549d6b136ba9f65d027e3ca9f27e89bc810350ded24902e4683713a27ba44da81dad2d1bd5f4f32ec3b"
+                },
+                "addendPoint": {
+                    "x": "e4908338223af34cf947ca6dfeca5cada38ed752ff5918e3b6c0dac8bf060665d36df469e72d4970504c859cea8bde12",
+                    "y": "4d142c31692a706f74060245ebcdf7b4469ec6a48e960e8930673d8080c43feb4b3b58a1a1282aa434e53ec5461bf764"
+                },
+                "result": {
+                    "x": "ab4bcb1f9b33a45e29b7e38a82765813af097b2b4e05829e37ef5c652b10ad6dd1fbda0616f5951e61338ccf239e9a1d",
+                    "y": "d38a4e28d933640d7392836e3f0634e551b51a50f1f4c1c685806e3e6ebd6eedf1d2913e7996d4e78cc7cfaff06a1763"
+                }
+            }
+        }
+    }
+}

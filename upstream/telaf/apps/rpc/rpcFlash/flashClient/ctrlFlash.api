@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
+ */
+API_VERSION = 1;
+SERVING_VERSION = 1;
+
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Partition name length with null character(s).
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE PARTITION_NAME_BYTES = 128;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * File path length with null character(s).
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE FILE_PATH_BYTES = 256;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Partition type enum.
+ */
+//--------------------------------------------------------------------------------------------------
+ENUM Partition
+{
+    MTD, ///< MTD partition.
+    UBI  ///< UBI volume.
+};
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Shows partition information.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION Info
+(
+    Partition type IN,                        // Partition type.
+    string partition[PARTITION_NAME_BYTES] IN // Partition name.
+) = 0;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Erase partition.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION Erase
+(
+    Partition type IN,                         // Partition type.
+    string partition[PARTITION_NAME_BYTES] IN  // Partition name.
+) = 1;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Read data to a file.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION Read
+(
+    Partition type IN,                         // Partition type.
+    string partition[PARTITION_NAME_BYTES] IN, // Partition name.
+    string file[FILE_PATH_BYTES] IN            // File name.
+) = 2;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Write data to a partition.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION Write
+(
+    Partition type IN,                         // Partition type.
+    string partition[PARTITION_NAME_BYTES] IN, // Partition name.
+    string file[FILE_PATH_BYTES] IN            // File name.
+) = 3;

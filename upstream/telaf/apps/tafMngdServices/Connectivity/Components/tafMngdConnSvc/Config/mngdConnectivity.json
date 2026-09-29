@@ -1,0 +1,117 @@
+{
+    "Product": "TelAF",
+    "Name": "MngdConn",
+    "Extension": "/data/persist/telaf/",
+    "ManagedConnectivityService": {
+        "Version": "25.03.00",
+        "Configuration": {
+            "Name": "Default",
+            "Sim":[
+                {
+                    "ID": 1,
+                    "Name": "SIM1",
+                    "SlotNumber": 1
+                }
+            ],
+            "Network":[
+                {
+                    "ID": 1,
+                    "Name": "Network1",
+                    "Use_Sim_ID": 1,
+                    "PhoneID": 1,
+                    "Registration": "Auto"
+                }
+            ],
+            "Data":[
+                {
+                    "ID": 1,
+                    "Name": "Data1",
+                    "Use_Network_ID": 1,
+                    "Profile":{
+                        "Number": 1,
+                        "APN": null
+                    },
+                    "AutoStart":"Yes",
+                     "DataStartRetry": {
+                       "Enable": "Yes",
+                       "RetryCount": 1,
+                       "BackoffInterval": 30,
+                       "BackoffIntervalStep": 2
+                    },
+                    "DataStartConnectionTest":{
+                        "URL": null,
+                        "IPv4": null
+                    },
+                     "PeriodicConnectivityCheck":{
+                        "Interval": 60,
+                        "RetryCount": 5,
+                        "URL": null
+                    }
+                },
+                {
+                    "ID": 2,
+                    "Name": "Data2",
+                    "Use_Network_ID": 1,
+                    "Profile":{
+                        "Number": 2,
+                        "APN": null
+                    },
+                    "AutoStart":"No",
+                     "DataStartRetry": {
+                       "Enable": "Yes",
+                       "RetryCount": 1,
+                       "BackoffInterval": 30,
+                       "BackoffIntervalStep": 2
+                    },
+                     "DataStartConnectionTest":{
+                        "URL": null,
+                        "IPv4": null
+                    },
+                     "PeriodicConnectivityCheck":{
+                        "Interval": 60,
+                        "RetryCount": 5,
+                        "URL": null
+                    }
+                }
+            ]
+        },
+        "Policy": {
+            "Name": "Default",
+            "DataSession":{
+                "DataConnection":[
+                    {
+                        "Priority": "1",
+                        "Use_Data_ID": "1"
+                    },
+                    {
+                        "Priority": "2",
+                        "Use_Data_ID": "2"
+                    }
+                ],
+                "MultiDataSession": {
+                    "Enable": "Yes",
+                    "NumConnections": 2
+                },
+                "ConnectivityRecovery": {
+                    "Level": "None",
+                    "StartWaitTime": 30,
+                    "RetryWaitTime": 300,
+                    "RadioOffOnInterval": 5,
+                    "SimOffOnInterval": 5,
+                    "AllowCancel": "No",
+                    "VerifyCancelingApp": "Yes"
+                },
+                "AppManagedConnectivityRecovery": {
+                    "Enable": "No",
+                    "VerifyCallingApp": "Yes",
+                    "MinTimeBetweenTriggers": 30,
+                    "MaxTimeBetweenTriggers": 300
+                },
+                "APIManagement": {
+                    "StartDataTimeout": 5,
+                    "StopDataTimeout": 5
+                }
+            }
+        }
+    }
+}

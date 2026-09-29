@@ -1,0 +1,20 @@
+sources:
+{
+    server.c
+}
+
+provides:
+{
+    api:
+    {
+          printer = rpcPrinter.api
+    }
+}
+
+requires:
+{
+    api:
+    {
+        taf_someipClnt.api
+    }
+}

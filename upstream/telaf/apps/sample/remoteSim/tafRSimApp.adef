@@ -1,0 +1,28 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+executables:
+{
+    tafRSimApp = ( remoteSimComp )
+}
+
+
+processes:
+{
+    run:
+    {
+        (tafRSimApp)
+    }
+    envVars:
+    {
+        LE_LOG_LEVEL = DEBUG
+    }
+}
+
+start: manual
+
+bindings:
+{
+    tafRSimApp.remoteSimComp.taf_simRsim -> tafRemoteSimSvc.taf_simRsim
+}
+

@@ -1,0 +1,68 @@
+cxxflags:
+{
+    -I$TELAF_ROOT/include
+    -I$LEGATO_ROOT/components/watchdogChain
+    -I$LEGATO_BUILD/framework/libjansson/include
+    -I$TELAF_ROOT/components/tafHalComp
+    -I$TELAF_ROOT/include/vhal
+    -ltelux_common
+    -ltelux_tel
+    -I$TELAF_ROOT/components/tafGptpLibrary
+    -I$TELAF_PA_DEFAULT/include
+    -O
+    -Wno-error
+    -DTAFPA_ENABLE_LEGACY_MACROS=1
+}
+
+ldflags:
+{
+    -L$TELAF_DEFAULT_PA_LIB_DIR/lib
+}
+
+sources:
+{
+    tafTimeSvc.cpp
+    tafTimeImpl.cpp
+}
+
+requires:
+{
+    component:
+    {
+        $TELAF_ROOT/components/tafHalComp
+        $TELAF_ROOT/components/tafGptpLibrary
+    }
+
+    api:
+    {
+        taf_mngdStorSecData.api [optional]
+        taf_pm.api
+        le_appInfo.api
+    }
+
+    lib:
+    {
+        libComponent_taf_pa_time.so
+        libComponent_taf_pa_timeDef.so
+    }
+}
+provides:
+{
+    api:
+    {
+         taf_time.api  [manual-start]
+    }
+}
+
+ldflags:
+ {
+     -ljansson
+ }
+
+bundles:
+{
+    file:
+    {
+        [r] tafTimeSvc.json   /
+    }
+}

@@ -1,0 +1,177 @@
+/*
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
+ */
+
+syntax = "proto3";
+
+package satcomStub;
+import "google/protobuf/empty.proto";
+import "common_simulation.proto";
+
+/*******************************************************************
+* Services Definition                                             *
+*******************************************************************/
+
+/*
+* This service is used to execute NtnManager related APIs.
+*/
+
+service NtnManager {
+    rpc InitService(google.protobuf.Empty) returns (GetServiceStatusReply) {}
+    rpc IsNtnSupported(IsNtnSupportedRequest) returns (IsNtnSupportedReply) {}
+    rpc EnableNtn(EnableNtnRequest) returns (DefaultReply) {}
+    rpc SendData(google.protobuf.Empty) returns (SendDataReply) {}
+    rpc AbortData(google.protobuf.Empty) returns (DefaultReply) {}
+    rpc GetNtnCapabilities(google.protobuf.Empty) returns (GetNtnCapabilitiesReply) {}
+    rpc GetSignalStrength(google.protobuf.Empty) returns (GetSignalStrengthReply) {}
+    rpc UpdateSystemSelectionSpecifiers(google.protobuf.Empty) returns (DefaultReply) {}
+    rpc GetNtnState(google.protobuf.Empty) returns (GetNtnStateReply) {}
+    rpc EnableCellularScan(EnableCellularScanRequest) returns (DefaultReply) {}
+    rpc SetLocationFix(SetLocationFixRequest) returns (DefaultReply) {}
+    rpc LocationFixResponse(LocationFixResponseRequest) returns (DefaultReply) {}
+}
+
+/*******************************************************************
+ * Messages Definition                                             *
+ *******************************************************************/
+
+enum ServiceStatus {
+    SERVICE_UNAVAILABLE = 0;
+    SERVICE_AVAILABLE = 1;
+    SERVICE_FAILED = 2;
+}
+
+message GetServiceStatusReply {
+    ServiceStatus service_status = 1;
+    int32 delay = 2;
+}
+
+message IsNtnSupportedRequest {
+    google.protobuf.Empty empty = 1;
+}
+
+message IsNtnSupportedReply {
+    bool is_supported = 1;
+    DefaultReply reply = 2;
+}
+
+message EnableNtnRequest {
+    bool enable = 1;
+    bool is_emergency = 2;
+    string iccid = 3;
+}
+
+message SendDataReply {
+    uint32 transaction_id = 1;
+    DefaultReply reply = 2;
+}
+
+message GetNtnCapabilitiesReply {
+    NtnCapabilities capabilities = 1;
+    DefaultReply reply = 2;
+}
+
+message NtnCapabilities {
+    int64 max_data_size = 1;
+}
+
+message GetSignalStrengthReply {
+    SignalStrength signal_strength = 1;
+    DefaultReply reply = 2;
+}
+
+enum SignalStrength {
+    UNKNOWN = 0;
+    POOR = 1;
+    NONE = -1;
+    MODERATE = 2;
+    GOOD = 3;
+    GREAT = 4;
+}
+
+message GetNtnStateReply {
+    NtnState state = 1;
+    DefaultReply reply = 2;
+}
+
+enum NtnState {
+    DISABLED = 0;
+    OUT_OF_SERVICE = 1;
+    IN_SERVICE = 2;
+}
+
+message EnableCellularScanRequest {
+    bool enable = 1;
+}
+
+message SetLocationFixRequest {
+    LocationFix params = 1;
+}
+
+message LocationFix {
+    float lat = 1;
+    float lon = 2;
+    float alt = 3;
+    uint32 uncer_circular = 4;
+    VelocityInfo vel_info = 5;
+    bool is_heading_valid = 6;
+    uint32 heading = 7;
+    bool is_heading_uncer_valid = 8;
+    uint32 heading_uncer = 9;
+    bool is_confidence_valid = 10;
+    uint32 confidence = 11;
+}
+
+message VelocityInfo {
+    bool is_enu_value_valid = 1;
+    repeated float enu_vel = 2;
+    bool is_enu_uncer_valid = 3;
+    repeated float enu_uncer = 4;
+}
+
+message LocationFixResponseRequest {
+    LocationStatus status = 1;
+    uint64 wait_time = 2;
+}
+
+enum LocationStatus {
+    SUCCESS = 0;
+    INVALID = -1;
+    INVALID_ARG = 1;
+    INTERNAL_ERR = 2;
+    NOT_SUPPORTED = 3;
+    RETRY = 4;
+    FAILED = 5;
+}
+
+message DefaultReply {
+    commonStub.ErrorCode error = 1;
+    commonStub.Status status = 2;
+    int32 delay = 3;
+}
+
+message NtnStateEvent {
+    NtnState state = 1;
+    int64 capabilities = 2;
+    SignalStrength signal_strength = 3;
+    int64 band_value = 4;
+}
+
+message CellularCoverageAvailableEvent {
+    bool is_available = 1;
+}
+
+message LocationFixRequestEvent {
+    LocationFixRequestReason req_reason = 1;
+}
+
+enum LocationFixRequestReason {
+    UNKOWN = 0;
+    NORMAL = 1;
+    VALIDITY_TIMER_EXPIRED = 2;
+}
+
+message IncomingDataEvent {
+    repeated uint32 data = 1;
+}

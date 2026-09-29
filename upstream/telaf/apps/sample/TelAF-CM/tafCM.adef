@@ -1,0 +1,41 @@
+username: telaf
+maxThreads: 600
+// Application is sandboxed
+sandboxed: true
+
+// Application is started manually
+start: manual
+
+executables:
+{
+    tafCM = (tafCMComponent)
+}
+
+processes:
+{
+    run:
+    {
+        (tafCM)
+    }
+    envVars:
+    {
+        LE_LOG_LEVEL = INFO
+    }
+}
+
+// TelAF Service bindings
+bindings:
+{
+    tafCM.tafCMComponent.taf_mngdConn -> tafMngdConnSvc.taf_mngdConn
+    tafCM.tafCMComponent.taf_dcs -> tafDataCallSvc.taf_dcs
+}
+
+// Directory in which the Policy and Configuration JSONs will be installed
+requires:
+{
+    dir:
+    {
+        /data/ManagedServices /data/ManagedServices
+        /usr/lib /usr/lib
+    }
+}

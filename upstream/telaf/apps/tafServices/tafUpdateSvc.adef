@@ -1,0 +1,77 @@
+maxThreads: 600
+
+username: telaf
+
+startGroup: 17
+
+capability:
+{
+        CAP_CHOWN
+        CAP_FOWNER
+        CAP_WAKE_ALARM
+        CAP_SYS_RESOURCE
+        CAP_DAC_OVERRIDE
+        CAP_SYS_BOOT
+#if ${LE_CONFIG_TEST_COVERAGE} = y
+        CAP_DAC_READ_SEARCH
+#endif
+}
+
+groups:
+{
+        ubi
+        disk
+        system
+        diag
+        radio
+        inet
+        locclient
+}
+
+sandboxed: false
+
+maxMemoryBytes: 60000K
+
+executables:
+{
+    tafUpdateSvc = ( $TELAF_ROOT/components/tafUpdateSvc )
+}
+
+start: auto
+
+requires :
+{
+    configTree:
+    {
+        [rw] system
+    }
+}
+
+processes:
+{
+    run:
+    {
+        (tafUpdateSvc)
+    }
+
+    maxCoreDumpFileBytes: 100000K
+    maxFileBytes: 1048576K
+    faultAction: restart
+}
+
+bindings:
+{
+    tafUpdateSvc.tafUpdateSvc.le_update -> <tafcore>.le_update
+    tafUpdateSvc.tafUpdateSvc.le_cfg -> <tafcore>.le_cfg
+    tafUpdateSvc.tafUpdateSvc.le_appCtrl -> <tafcore>.le_appCtrl
+    tafUpdateSvc.tafUpdateSvc.le_appInfo -> <tafcore>.le_appInfo
+    tafUpdateSvc.tafUpdateSvc.le_appRemove -> <tafcore>.le_appRemove
+}
+
+extern:
+{
+    tafUpdateSvc.tafUpdateSvc.taf_update
+    tafUpdateSvc.tafUpdateSvc.taf_appMgmt
+    tafUpdateSvc.tafUpdateSvc.taf_fwupdate
+    tafUpdateSvc.tafUpdateSvc.taf_flash
+}

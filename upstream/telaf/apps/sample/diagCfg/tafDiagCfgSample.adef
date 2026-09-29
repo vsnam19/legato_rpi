@@ -1,0 +1,13 @@
+username: telaf
+executables:
+{
+    diagCfgSample = ( diagCfgSampleComp )
+}
+
+processes:
+{
+    run:
+    {
+        ( diagCfgSample )
+    }
+}

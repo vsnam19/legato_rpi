@@ -1,0 +1,69 @@
+maxThreads: 600
+
+username: telaf
+startGroup: 20
+
+capability:
+{
+    CAP_WAKE_ALARM
+    CAP_NET_ADMIN
+}
+
+groups:
+{
+    system
+    diag
+    radio
+    inet
+    locclient
+}
+
+executables:
+{
+    tafMngdConnSvc = ( $TELAF_ROOT/apps/tafMngdServices/Connectivity/Components/tafMngdConnSvc )
+}
+
+start: manual
+
+processes:
+{
+    run:
+    {
+        (tafMngdConnSvc)
+    }
+
+    maxCoreDumpFileBytes: 100000K
+    maxFileBytes: 100000K
+    faultAction: restart
+}
+
+// Bundle default mngdConnectivity.json for reference.
+// The service will use the JSON in /data/ManagedServices.
+bundles:
+{
+    file:
+    {
+        [r] Components/tafMngdConnSvc/Config/mngdConnectivity.json /
+    }
+}
+
+
+sandboxed: false
+
+bindings:
+{
+    tafMngdConnSvc.tafMngdConnSvc.taf_dcs -> tafDataCallSvc.taf_dcs
+    tafMngdConnSvc.tafMngdConnSvc.taf_radio -> tafRadioSvc.taf_radio
+    tafMngdConnSvc.tafMngdConnSvc.taf_sim -> tafSimCardSvc.taf_sim
+    tafMngdConnSvc.tafMngdConnSvc.le_appInfo -> <tafcore>.le_appInfo
+#if ${LE_CONFIG_TARGET_SIMULATION} = ""
+    tafMngdConnSvc.tafMngdConnSvc.taf_net -> tafNetSvc.taf_net
+    tafMngdConnSvc.tafMngdConnSvc.taf_mngdPm -> tafMngdPMSvc.taf_mngdPm
+    tafMngdConnSvc.tafMngdConnSvc.taf_ecall -> tafECallSvc.taf_ecall
+#endif
+}
+
+extern:
+{
+    tafMngdConnSvc.tafMngdConnSvc.taf_mngdConn
+}

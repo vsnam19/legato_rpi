@@ -1,0 +1,24 @@
+username: telaf
+sandboxed: false
+executables:
+{
+    tafDiagCancelFileXfer = ( diagCancelFileXferComp )
+}
+
+
+processes:
+{
+    envVars:
+    {
+        LE_LOG_LEVEL = DEBUG
+    }
+
+    maxFileBytes: 8192K
+}
+
+start: manual
+
+bindings:
+{
+    tafDiagCancelFileXfer.diagCancelFileXferComp.taf_diag -> tafDiagSvc.taf_diag
+}

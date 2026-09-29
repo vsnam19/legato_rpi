@@ -1,0 +1,385 @@
+/*
+ *  Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ *  SPDX-License-Identifier: BSD-3-Clause-Clear
+ */
+
+syntax = "proto3";
+
+package securityStub;
+
+import "google/protobuf/empty.proto";
+import "common_simulation.proto";
+
+/* Random number generator service */
+service RandomNumberGeneratorService {
+    rpc Init (RNGSource) returns (RNGInitInfo) {}
+    rpc GetRandomNumber (RandomNumber) returns (RandomNumber) {}
+    rpc GetRandomData (RandomData) returns (RandomData) {}
+    rpc RNGClientCleanup (RNGClientInfo) returns (google.protobuf.Empty) {}
+}
+
+/* Cellular connection security service */
+service SecurityCCSService {
+    rpc Init (CCSConnectInfo) returns (commonStub.ErrorCodeMsg) {}
+    rpc DeInit (CCSDisconnectInfo) returns (commonStub.ErrorCodeMsg) {}
+    rpc GetCurrentSessionStats (google.protobuf.Empty) returns (SessionStats) {}
+    rpc registerCCSListener (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+    rpc deRegisterCCSListener (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+}
+
+/* WiFi connection security service */
+service SecurityWCSService {
+    rpc Init (google.protobuf.Empty) returns (InitInfo) {}
+    rpc DeInit (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+    rpc RegisterClientForReport (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+    rpc DeregisterClientForReport (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+    rpc GetTrustedApList (google.protobuf.Empty) returns (TrustedAPList) {}
+    rpc SetTrustedAp (IsTrustedUserResponse) returns (commonStub.ErrorCodeMsg) {}
+    rpc RemoveApFromTrustedList (ApInfo) returns (commonStub.ErrorCodeMsg) {}
+}
+
+/* Crypto accelerator control service */
+service SecurityCALCService {
+    rpc Init (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+    rpc DeInit (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+    rpc RegisterClient (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+    rpc DeregisterClient (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+    rpc GetOperationsCount (google.protobuf.Empty) returns (LoadCount) {}
+    rpc GetCapacity (google.protobuf.Empty) returns (Capacity) {}
+}
+
+/* Crypto manager service */
+service SecurityCryptoManagerService {
+    rpc Init (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+    rpc DeInit (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+    rpc GenerateKey (GenerateKeyRequest) returns (GenerateKeyResponse) {}
+    rpc ImportKey (ImportKeyRequest) returns (ImportKeyResponse) {}
+    rpc ExportKey (ExportKeyRequest) returns (ExportKeyResponse) {}
+    rpc UpgradeKey (UpgradeKeyRequest) returns (UpgradeKeyResponse) {}
+    rpc SignData (SignDataRequest) returns (SignDataResponse) {}
+    rpc VerifyData (VerifyDataRequest) returns (VerifyDataResponse) {}
+    rpc EncryptData (EncryptDataRequest) returns (EncryptDataResponse) {}
+    rpc DecryptData (DecryptDataRequest) returns (DecryptDataResponse) {}
+}
+
+/* Crypto Accelerator Manager service */
+service CryptoAcceleratorManagerService {
+    rpc Init (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+    rpc DeInit (google.protobuf.Empty) returns (commonStub.ErrorCodeMsg) {}
+    rpc EccVerifyDigest (EccVerificationRequest) returns (EccVerificationResponse) {}
+    rpc EcqvPointMultiplyAndAdd (EcqvRequest) returns (EcqvResponse) {}
+    rpc EccPostDigestForVerification (EccVerificationRequest) returns (EccPostVerificationResponse) {}
+    rpc EcqvPostDataForMultiplyAndAdd (EcqvRequest) returns (EcqvPostResponse) {}
+    rpc GetAsyncResults (GetAsyncResultsRequest) returns (GetAsyncResultsResponse) {}
+}
+
+/* Random number generator messages */
+message RNGSource {
+    enum Source {
+        RNG_SRC_DEFAULT = 0;
+        QTI_HW_TRNG = 1;
+        DEV_RANDOM = 2;
+    }
+    Source source = 1;
+}
+
+message RNGInitInfo {
+    int32 rng_fd = 1;
+    commonStub.ErrorCode error_code = 2;
+}
+
+message RandomNumber {
+    int32 rng_fd = 1;
+    oneof Number {
+        uint32 number32 = 2;
+        uint64 number64 = 3;
+    }
+    commonStub.ErrorCode error_code = 4;
+}
+
+message RandomData {
+    int32 rng_fd = 1;
+    uint32 length = 2;
+    repeated bytes data = 3;
+    commonStub.ErrorCode error_code = 4;
+}
+
+message RNGClientInfo {
+    int32 rng_fd = 1;
+}
+
+/* CCS messages */
+message CCSConnectInfo {
+    uint32 trailing_indication_queue_size = 1;
+}
+
+message CCSDisconnectInfo {
+}
+
+message SessionStats {
+  uint32 indication_count = 1;
+  uint32 hostile_score_count = 2;
+  string session_start_time = 3;
+  float average_score = 4;
+  uint32 categories_detected = 5;
+  string most_recent_policy_acted = 6;
+  bool was_countermeasure_enacted = 7;
+  commonStub.ErrorCode ec = 8;
+}
+
+message CCSReport {
+    int32 score = 1;
+    uint32 cid = 2;
+    uint32 pid = 3;
+    uint32 mcc = 4;
+    uint32 mnc = 5;
+    uint32 category = 6;
+    uint32 policy_acted = 7;
+    enum EnvState {
+        UNKNOWN = 0;
+        SAFE = 1;
+        ALERT = 2;
+        HOSTILE = 3;
+    }
+    EnvState env_state = 8;
+    enum RadioTech {
+        RADIO_UKNOWN = 0;
+        RADIO_1 = 1;
+        RADIO_GERAN = 2;
+        RADIO_WCDMA = 3;
+        RADIO_LTE = 4;
+        RADIO_NR = 5;
+    }
+    RadioTech radio = 9;
+}
+
+message CCSServiceState {
+    enum Value {
+        SSGCCS_OFFLINE = 0;
+        SSGCCS_ONLINE = 1;
+    }
+    Value value = 1;
+}
+
+/* WCS messages */
+message InitInfo {
+    uint32 ss_ready_delay = 1;
+    commonStub.ServiceStatus service_status = 2;
+    commonStub.ErrorCode error_code = 3;
+}
+
+message WCSReport {
+    string ssid = 1;
+    string bssid = 2;
+    bool is_connected_to_ap = 3;
+    bool is_open_ap = 4;
+    uint32 mlalgo_threat_score = 5;
+    int32 mlalgo_analysis_result = 6;
+    int32 summoning_analysis_result = 7;
+}
+
+message DeauthenticationInfo {
+    int32 deauthentication_reason = 1;
+    bool did_ap_initiate_disconnect = 2;
+    uint32 threat_score = 3;
+}
+
+message ApInfo {
+    string ssid = 1;
+    string bssid = 2;
+}
+
+message IsTrustedUserResponse {
+    string ssid = 1;
+    string bssid = 2;
+    bool is_trusted = 3;
+}
+
+message TrustedAPList {
+    repeated ApInfo ap_list = 1;
+    commonStub.ErrorCode ec = 2;
+}
+
+message WCSServiceStatus {
+    commonStub.ServiceStatus service_status = 1;
+}
+
+/* Crypto accelerator control service messages */
+message LoadCount {
+    uint32 sm2 = 1;
+    uint32 nist256 = 2;
+    uint32 nist384 = 3;
+    uint32 bp256 = 4;
+    uint32 bp384 = 5;
+    commonStub.ErrorCode error_code = 6;
+}
+
+message Capacity {
+    uint32 sm2 = 1;
+    uint32 nist256 = 2;
+    uint32 nist384 = 3;
+    uint32 bp256 = 4;
+    uint32 bp384 = 5;
+    commonStub.ErrorCode error_code = 6;
+}
+
+/* Crypto manager messages */
+message GenerateKeyRequest {
+}
+
+message GenerateKeyResponse {
+    bytes key_blob = 1;
+    commonStub.ErrorCode error_code = 2;
+}
+
+message ImportKeyRequest {
+}
+
+message ImportKeyResponse {
+    bytes key_blob = 1;
+    commonStub.ErrorCode error_code = 2;
+}
+
+message ExportKeyRequest {
+}
+
+message ExportKeyResponse {
+    bytes key_data = 1;
+    commonStub.ErrorCode error_code = 2;
+}
+
+message UpgradeKeyRequest {
+}
+
+message UpgradeKeyResponse {
+    bytes new_key_blob = 1;
+    commonStub.ErrorCode error_code = 2;
+}
+
+message SignDataRequest {
+}
+
+message SignDataResponse {
+    bytes signature = 1;
+    commonStub.ErrorCode error_code = 2;
+}
+
+message VerifyDataRequest {
+}
+
+message VerifyDataResponse {
+    bool verified = 1;
+    commonStub.ErrorCode error_code = 2;
+}
+
+message EncryptDataRequest {
+
+}
+
+message EncryptDataResponse {
+    bytes encrypted_text = 1;
+    commonStub.ErrorCode error_code = 3;
+}
+
+message DecryptDataRequest {
+}
+
+message DecryptDataResponse {
+    bytes decrypted_text = 1;
+    commonStub.ErrorCode error_code = 2;
+}
+
+/* Crypto Accelerator Manager messages */
+message EccVerificationRequest {
+    bytes digest = 1;
+    bytes public_key_x = 2;
+    bytes public_key_y = 3;
+    bytes signature_r = 4;
+    bytes signature_s = 5;
+    EccCurve curve = 6;
+    uint32 uniqueId = 7;
+    RequestPriority priority = 8;
+    Mode mode = 9;
+}
+
+message EcqvRequest {
+    bytes multiplicand_point_x = 1;
+    bytes multiplicand_point_y = 2;
+    bytes addend_point_x = 3;
+    bytes addend_point_y = 4;
+    bytes scalar = 5;
+    EccCurve curve = 6;
+    uint32 uniqueId = 7;
+    RequestPriority priority = 8;
+    Mode mode = 9;
+}
+
+message EccVerificationResponse {
+    bytes resultData = 1;
+    commonStub.ErrorCode error_code = 2;
+}
+
+message EccPostVerificationResponse {
+    commonStub.Status status = 1;
+    commonStub.ErrorCode error_code = 2;
+    int32 delay = 3;
+    bytes resultData = 4;
+}
+
+message EcqvResponse {
+    bytes resultData = 1;
+    commonStub.ErrorCode error_code = 2;
+}
+
+message EcqvPostResponse {
+    commonStub.Status status = 1;
+    commonStub.ErrorCode error_code = 2;
+    int32 delay = 3;
+    bytes resultData = 4;
+}
+
+message GetAsyncResultsRequest {
+    uint32 numResultsToRead = 1;
+    int32 timeout = 2;
+}
+
+message GetAsyncResultsResponse {
+    repeated OperationResult results = 1;
+    uint32 numResultsRead = 2;
+    commonStub.ErrorCode error_code = 3;
+}
+
+message CryptoAccServiceStatus {
+    commonStub.ServiceStatus service_status = 1;
+}
+
+message OperationResult {
+    uint32 id = 1;
+    OperationType operationType = 2;
+    commonStub.ErrorCode error_code = 3;
+    bytes data = 4;
+}
+
+enum EccCurve {
+    CURVE_SM2 = 0;
+    CURVE_NISTP256 = 1;
+    CURVE_NISTP384 = 2;
+    CURVE_BRAINPOOLP256R1 = 3;
+    CURVE_BRAINPOOLP384R1 = 4;
+}
+
+enum RequestPriority {
+    REQ_PRIORITY_HIGH = 0;
+    REQ_PRIORITY_NORMAL = 1;
+}
+
+enum Mode {
+    MODE_SYNC = 0;
+    MODE_ASYNC_POLL = 1;
+    MODE_ASYNC_LISTENER = 2;
+}
+
+enum OperationType {
+    OP_TYPE_VERIFY = 0;
+    OP_TYPE_CALCULATE = 1;
+}

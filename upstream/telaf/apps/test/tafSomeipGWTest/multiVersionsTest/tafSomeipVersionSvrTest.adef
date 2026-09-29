@@ -1,0 +1,21 @@
+username: telaf
+start: manual
+sandboxed: false
+
+executables:
+{
+    VersionServerTest = ( ServerComp )
+}
+
+processes:
+{
+    run:
+    {
+        ( VersionServerTest )
+    }
+}
+
+bindings:
+{
+    VersionServerTest.ServerComp.taf_someipSvr -> tafSomeipGWSvc.taf_someipSvr
+}

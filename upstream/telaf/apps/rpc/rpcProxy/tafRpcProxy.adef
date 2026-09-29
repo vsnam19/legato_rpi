@@ -1,0 +1,41 @@
+sandboxed: false
+
+maxThreads: 600
+
+username: telaf
+
+startGroup: 11
+
+capability:
+{
+    CAP_WAKE_ALARM
+    CAP_SYS_ADMIN
+#if ${LE_CONFIG_TEST_COVERAGE} = y
+    CAP_DAC_READ_SEARCH
+    CAP_DAC_OVERRIDE
+#endif
+}
+
+executables:
+{
+    tafRpcProxy = (component)
+}
+
+processes:
+{
+    run:
+    {
+        (tafRpcProxy)
+    }
+
+    maxCoreDumpFileBytes: 100000K
+    maxFileBytes: 100000K
+    faultAction: restart
+}
+
+bindings:
+{
+    tafRpcProxy.component.taf_someipClnt -> tafSomeipGWSvc.taf_someipClnt
+    tafRpcProxy.component.taf_someipSvr -> tafSomeipGWSvc.taf_someipSvr
+    tafRpcProxy.component.le_instStat -> <tafcore>.le_instStat
+}

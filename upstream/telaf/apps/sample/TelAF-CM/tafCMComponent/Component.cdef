@@ -1,0 +1,18 @@
+sources:
+{
+    tafCM.cpp
+}
+
+requires:
+{
+    api:
+    {
+       taf_mngdConn.api
+       taf_dcs.api
+    }
+}
+
+ldflags:
+{
+    -lboost_filesystem
+}

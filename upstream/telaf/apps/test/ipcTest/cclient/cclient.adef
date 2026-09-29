@@ -1,0 +1,19 @@
+username: telaf
+maxThreads: 600
+executables:
+{
+    cclient = ( clientComp )
+}
+
+processes:
+{
+    run:
+    {
+        ( cclient )
+    }
+}
+
+bindings:
+{
+    cclient.clientComp.ipcTest -> cserver.ipcTest
+}

@@ -1,0 +1,62 @@
+provides:
+{
+    api:
+    {
+        taf_wlan.api
+        taf_wlanAp.api
+        taf_wlanSta.api
+    }
+}
+
+ldflags:
+{
+    -L$TELAF_DEFAULT_PA_LIB_DIR/lib
+}
+
+requires:
+{
+    lib:
+    {
+        libComponent_taf_pa_wlan.so
+        libComponent_taf_pa_wlanDef.so
+    }
+
+    api:
+    {
+        le_appInfo.api
+    }
+}
+
+cxxflags:
+{
+    -I$TELAF_ROOT/include
+    -D CONFIG_CTRL_IFACE
+    -D CONFIG_CTRL_IFACE_UNIX
+    -I$TELAF_ROOT/../external/wpa_supplicant_8/src/common
+    -I$TELAF_ROOT/../external/wpa_supplicant_8/src/utils
+    -I$LEGATO_ROOT/framework/liblegato
+    -std=c++17
+    -I$TELAF_PA_DEFAULT/include
+}
+
+cflags:
+{
+    -D CONFIG_CTRL_IFACE
+    -D CONFIG_CTRL_IFACE_UNIX
+    -I$TELAF_ROOT/../external/wpa_supplicant_8/src/common
+    -I$TELAF_ROOT/../external/wpa_supplicant_8/src/utils
+}
+
+sources:
+{
+    tafWlanSvc.cpp
+    tafWlanSvcImpl.cpp
+    tafWlanAPSvc.cpp
+    tafWlanAPSvcImpl.cpp
+    tafWlanSTASvc.cpp
+    tafWlanSTASvcImpl.cpp
+    tafWlanSTAApSignalStrengthImpl.cpp
+    tafWlanStaWpaSupplicantIntfImpl.cpp
+    $TELAF_ROOT/../external/wpa_supplicant_8/src/common/wpa_ctrl.c
+    $TELAF_ROOT/../external/wpa_supplicant_8/src/utils/os_unix.c
+}

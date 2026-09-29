@@ -1,0 +1,38 @@
+{
+    "INtnManager": {
+        "IsSubsystemReady": "SERVICE_AVAILABLE",
+        "IsSubsystemReadyDelay": 400,
+        "DefaultCallbackDelay": 400,
+        "isNtnSupported": {
+            "error": "SUCCESS"
+        },
+        "enableNtn": {
+            "error": "SUCCESS"
+        },
+        "sendData": {
+            "status": "SUCCESS",
+            "error": "SUCCESS"
+        },
+        "abortData": {
+            "error": "SUCCESS"
+        },
+        "getNtnCapabilities": {
+            "error": "SUCCESS"
+        },
+        "getSignalStrength": {
+            "error": "SUCCESS"
+        },
+        "updateSystemSelectionSpecifiers": {
+            "error": "SUCCESS"
+        },
+        "enableCellularScan": {
+            "error": "SUCCESS"
+        },
+        "setLocationFix": {
+            "error": "SUCCESS"
+        },
+        "locationFixResponse": {
+            "error": "SUCCESS"
+        }
+    }
+}

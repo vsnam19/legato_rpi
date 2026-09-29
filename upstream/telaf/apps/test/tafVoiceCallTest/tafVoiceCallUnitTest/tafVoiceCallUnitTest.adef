@@ -1,0 +1,31 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+
+executables:
+{
+    tafVoiceCallUnitTest = ( tafVoiceCallComponent )
+}
+
+start: manual
+
+processes:
+{
+    run:
+    {
+        (tafVoiceCallUnitTest)
+    }
+
+    faultAction: stopApp
+
+    #if ${LE_CONFIG_SERVICES_WATCHDOG} = y
+        maxWatchdogTimeout: 100000
+    #else
+        watchdogTimeout: never
+    #endif
+}
+
+bindings:
+{
+    tafVoiceCallUnitTest.tafVoiceCallComponent.taf_voicecall -> tafVoiceCallSvc.taf_voicecall
+}

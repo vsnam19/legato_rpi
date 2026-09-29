@@ -1,0 +1,40 @@
+
+provides:
+{
+    api:
+    {
+        taf_imuSensor.api
+    }
+}
+
+ldflags:
+{
+    -L$TELAF_DEFAULT_PA_LIB_DIR/lib
+}
+
+requires:
+{
+    component:
+    {
+        $LEGATO_ROOT/components/watchdogChain
+    }
+    lib:
+    {
+        libComponent_taf_pa_sensor.so
+        libComponent_taf_pa_sensorDef.so
+    }
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+    -I$TELAF_ROOT/include
+    -I$TELAF_PA_DEFAULT/include
+    -std=c++17
+}
+
+sources:
+{
+    tafImuSensorImpl.cpp
+    tafImuSensorSvc.cpp
+}

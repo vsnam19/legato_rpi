@@ -1,0 +1,60 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+policy_module(tafWlanSvc, 1.0)
+
+gen_require(`
+    type tmp_t;
+    type NetworkManager_var_run_t;
+    type NetworkManager_t;
+    # For WLAN AP
+    type hostapd_t;
+    type hostapd_var_run_t;
+')
+
+
+# Framework definition for telaf
+type telaf_tafWlanSvc_exec_t;
+files_type(telaf_tafWlanSvc_exec_t);
+
+type telaf_tafWlanSvc_t;
+
+type telaf_tafWlanSvc_data_t;
+files_type(telaf_tafWlanSvc_data_t);
+
+allow NetworkManager_t telaf_tafWlanSvc_t:unix_dgram_socket sendto;
+
+allow NetworkManager_t tmp_t:sock_file write;
+
+allow telaf_tafWlanSvc_t NetworkManager_t:unix_dgram_socket sendto;
+
+allow telaf_tafWlanSvc_t tmp_t:sock_file { create unlink write};
+
+allow telaf_tafWlanSvc_t NetworkManager_var_run_t:dir { write search };
+
+allow telaf_tafWlanSvc_t NetworkManager_var_run_t:sock_file { write };
+
+# For WLAN AP
+allow hostapd_t tmp_t:sock_file write;
+allow hostapd_t telaf_tafWlanSvc_t:unix_dgram_socket sendto;
+allow telaf_tafWlanSvc_t hostapd_var_run_t:dir search_dir_perms;
+allow telaf_tafWlanSvc_t hostapd_var_run_t:dir { write search };
+allow telaf_tafWlanSvc_t hostapd_var_run_t:sock_file { read write  };
+allow telaf_tafWlanSvc_t hostapd_t:unix_dgram_socket { sendto };
+
+telaf_tafKeyStoreSvc_getKeyId(telaf_tafWlanSvc_t)
+
+init_telaf_app_domain(telaf_tafWlanSvc_t,telaf_tafWlanSvc_exec_t)
+
+# Allow update daemon to install/uninstall this service
+telaf_admin_manage_all_files_perms(telaf_tafWlanSvc_data_t)
+telaf_admin_manage_all_files_perms(telaf_tafWlanSvc_exec_t)
+
+telux_allow_wlan_device_config(telaf_tafWlanSvc_t)
+telux_allow_wlan_ap_config(telaf_tafWlanSvc_t)
+telux_allow_wlan_sta_config(telaf_tafWlanSvc_t)
+telux_allow_wlan_ap_devices(telaf_tafWlanSvc_t)
+telux_allow_data(telaf_tafWlanSvc_t)
+telux_allow_data_setting(telaf_tafWlanSvc_t)
+
+telux_allow_wlan(telaf_tafWlanSvc_t)

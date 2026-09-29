@@ -1,0 +1,29 @@
+username: telaf
+maxThreads: 600
+start: manual
+sandboxed: false
+
+
+executables:
+{
+    tafFSCryptUnitTest = ( tafFSCryptUnitTest )
+}
+
+processes:
+{
+    run:
+    {
+        ( tafFSCryptUnitTest )
+    }
+}
+
+// Add SELinux module
+components:
+{
+//  $TELAF_ROOT/security/selinux/sepolicy/test/tafFSCryptUnitTest/component
+}
+
+bindings:
+{
+    tafFSCryptUnitTest.tafFSCryptUnitTest.taf_fsc -> tafKeyStoreSvc.taf_fsc
+}

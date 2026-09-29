@@ -1,0 +1,33 @@
+username: telaf
+maxThreads: 600
+start: manual
+
+sandboxed: false
+
+executables:
+{
+    dlClient = (clientComp)
+    dlCtrl = (ctrlComp)
+}
+
+processes:
+{
+    run:
+    {
+        (dlClient)
+    }
+}
+
+bundles:
+{
+    file:
+    {
+        [r] config/default.conf    /
+    }
+}
+
+bindings:
+{
+    dlCtrl.ctrlComp.ctrlDl -> dlClient.clientComp.ctrlDl
+    dlClient.clientComp.taf_update -> tafUpdateSvc.taf_update
+}

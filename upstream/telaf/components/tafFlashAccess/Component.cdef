@@ -1,0 +1,18 @@
+provides:
+{
+    headerDir:
+    {
+       $CURDIR
+    }
+}
+
+cxxflags:
+{
+    -I$TELAF_ROOT/include
+}
+
+sources:
+{
+    tafFlashAccess.cpp
+    tafFlashImpl.cpp
+}

@@ -1,0 +1,1233 @@
+/*
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
+ */
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * @page c_taf_mngdConn Managed Connectivity Service
+ *
+ * @rst :ref:`API reference <File taf_mngdConn_interface.h>` @endrst
+ *
+ * <HR>
+ *
+ * The Managed Connectivity service APIs help to manage Connectivity on the NAD/TCU.
+ *
+ * @section taf_mngdConn_binding IPC interfaces binding
+ *
+ *
+ * The following example illustrates how to bind to the Managed Connectivity service.
+ * @verbatim
+   bindings:
+   {
+       clientExe.clientComponent.taf_mngdConn -> tafMngdConnSvc.taf_mngdConn
+   }
+   @endverbatim
+ *
+ * @section taf_mngdConn_Connectivity Managed Connectivity
+ *
+ * The service requires a valid mngdConnectivity.json file for its normal operation.
+ * The objects and values for this JSON are documented below.
+ * By default, the service will use mngdConnectivity.json, which is bundled with the service
+ * from the TelAF RO location.
+ * Upon startup, the service will examine the path specified in the "Extension" object to verify
+ * the presence of a valid JSON file. Should a valid JSON be located at the "Extension" path,
+ * the service will utilize that JSON. In the event that the JSON is either unavailable or invalid,
+ * the service will revert to using the JSON bundled with the service.
+ *
+ * Template of mngdConnectivity.json:
+ * @verbatim
+ {
+    "Product": "TelAF",
+    "Name": "MngdConn",
+    "Extension": "/data/persist/telaf/",   ///< Extension Path for the JSON
+    "ManagedConnectivityService": {
+        "Version": "25.02.00",             ///< Version of the JSON
+        "Configuration": {                 ///< Configuration Object.
+            "Name": "Default",
+            "Sim":[
+                {
+                    "ID": 1,               ///< Sim ID corresponding to the Use_Sim_ID in "Network".
+                    "Name": "Sim1",        ///< Sim object name. Name should be unique among sim
+                                           ///  objects.
+                    "SlotNumber": 1        ///< Slot ID.
+                }
+            ],
+            "Network":[
+                {
+                    "ID": 1,                ///< Network ID corresponding to the Use_Network_ID in
+                                            ///  "Data".
+                    "Name": "Network1",     ///< Network object name. Name should be unique among
+                                            ///  network objects.
+                    "Use_Sim_ID": 1,        ///< SIM ID which is used for this network.
+                    "PhoneID": 1,           ///< Phone ID.
+                    "Registration": "Auto"  ///< Is automatically registered or not.
+                }
+            ],
+            "Data":[                        ///< Support for multiple data sessions
+                {
+                    "ID": 1,                ///< Data ID corresponding to the Use_Data_ID in policy
+                                            ///  file.
+                    "Name": "Data1",        ///< Data object name. Name should be unique among data
+                                            ///  objects.
+                    "Use_Network_ID": 1,    ///< Network ID which is used for this data connection.
+                    "Profile":{
+                        "Number": 1,        ///< Profile number.
+                        "APN": null         ///< Profile APN. If APN is valid, profile will be
+                                            ///  updated with the provided APN. The service will not
+                                            ///  validate the correctness of the APN. If update
+                                            ///  fails,the service will log an error and stop.
+                    },
+                    "AutoStart":"Yes",      ///< Data session is automatically started or not.
+                    "DataStartRetry": {
+                     "Enable": "Yes",       ///< Yes means there is an issue that makes the ongoing
+                                            ///  data connection unavailable. The service will start
+                                            ///  retrying on data start failure.
+                                            ///  No means data connection establishment retry will
+                                            ///  not be performed on failure.
+                     "RetryCount": 1,       ///< Maximum number of data connection establishment
+                                            ///  retries.
+                     "BackoffInterval": 30,        ///< Retry back off interval in seconds.
+                     "BackoffIntervalStep": 2      ///< Retry back off step. Subsequent retries will
+                                                   /// be incremented by this step.
+
+                    },
+                    "DataStartConnectionTest":{    ///< URL or IP to perform ConnectionTest in order
+                                                   ///  of preference.
+                        "URL": null,               ///< Valid URL to work with.
+                        "IPv4": null               ///< Valid quad-dotted IP address.
+                    },
+                    "PeriodicConnectivityCheck":{  ///< At preconfigured intervals, health of the
+                                                   ///  data connection(s) will be checked.
+                        "Interval": 60,            ///< Interval between connectivity checks.
+                        "RetryCount": 5,           ///< Number of times to retry connectivity check.
+                        "URL": null                ///< If not null, the URL will be used for
+                                                   ///  periodic connectivity tests. If null,
+                                                   ///  periodic connectivity test will not be
+                                                   ///  performed.
+                    }
+                },
+                {
+                    "ID": 2,
+                    "Name": "Data2",
+                    "Use_Network_ID": 1,
+                    "Profile":{
+                        "Number": 2,
+                        "APN": null
+                    },
+                    "AutoStart":"No",
+                    "DataStartRetry": {
+                       "Enable": "Yes",
+                       "RetryCount": 1,
+                       "BackoffInterval": 30,
+                       "BackoffIntervalStep": 2
+                    },
+                     "DataStartConnectionTest":{
+                        "URL": null,
+                        "IPv4": null
+                    },
+                    "PeriodicConnectivityCheck":{
+                        "Interval": 60,
+                        "RetryCount": 5,
+                        "URL": null
+                    }
+                }
+            ]
+        },
+        "Policy": {                         ///< Policy Object.
+            "Name": "Default",
+            "DataSession":{
+                "DataConnection":[          ///< Connections will be started based on the respective
+                                            ///  priority of the data ID.
+                    {
+                        "Priority": "1",    ///< User defined priority. 1 is the highest priority.
+                                            ///  Duplication is not allowed.
+                        "Use_Data_ID": "1"  ///< Data ID which is used for the data connection.
+                    },
+                    {
+                        "Priority": "2",
+                        "Use_Data_ID": "2"
+                    }
+                ],
+
+                "MultiDataSession": {
+                    "Enable": "Yes",            ///< Yes for enabling multiple data session support.
+                                                ///  No for disabling multiple data session support.
+                    "NumConnections": 2         ///< The maximum number of concurrent data sessions.
+                },
+                "ConnectivityRecovery": {       ///< Recovery mechanism that will kick in after
+                                                ///  DataStartRetry fails.
+                    "Level": "None",            ///< Level of recovery.
+                    "StartWaitTime": 30,        ///< Time in seconds the service will wait between
+                                                ///  connectivity recovery scheduled and started
+                                                ///  events.
+                    "RetryWaitTime" : 300,      ///< Time in seconds the service will wait before
+                                                ///  retrying a recovery process that was canceled
+                                                ///  or failed.
+                    "RadioOffOnInterval" : 5,   ///< Time in seconds between radio off and on for
+                                                ///  radio off-on recovery operation.
+                    "SimOffOnInterval" : 5,     ///< Time in seconds between sim off and on for
+                                                ///  sim off-on recovery operation.
+                    "AllowCancel": "No",        ///< Allow applications to cancel a scheduled
+                                                ///  recovery.
+                    "VerifyCancelingApp": "Yes" ///< Verify if calling app had previously requested
+                                                ///  a data session using taf_mngdConn_StartData().
+                },
+                "AppManagedConnectivityRecovery": {
+                    "Enable": "No",               ///< Enable/disable app triggered connectivity
+                                                  ///  recovery.
+                    "VerifyCallingApp": "Yes",    ///< Verify if calling app had previously
+                                                  ///  requested a data session using
+                                                  ///  taf_dcs_StartData().
+                    "MinTimeBetweenTriggers": 30, ///< The minimum time between 2
+                                                  ///  taf_mngdConn_StartDataRetry() calls in
+                                                  ///  seconds.
+                    "MaxTimeBetweenTriggers": 300 ///< The maximum time between 2
+                                                  ///  taf_mngdConn_StartDataRetry() calls in
+                                                  ///  seconds. The service will maintain the
+                                                  ///  recovery state during this time.
+                                                  ///  If the taf_mngdConn_StartDataRetry()API is
+                                                  ///  called again within this period by the same
+                                                  ///  client, then the service will trigger the
+                                                  ///   next level of recovery.
+                },
+                "APIManagement": {
+                    "StartDataTimeout": 5,      ///< Timeout for StartData API.
+                    "StopDataTimeout": 5        ///< Timeout for StopData API.
+                }
+            }
+        }
+    }
+}
+ @endverbatim
+ * @section json_details Configurations and Policy
+ *
+ * The following table illustrates details about Configuration and Policy JSON.
+ * @rstblock
+.. raw:: html
+
+ <table border="1">
+ <thead>
+   <tr>
+     <th colspan="4" width="12%">Objects (and subobjects)</th>
+     <th width="6%">Property</th>
+     <th width="6%">TelAF data type</th>
+     <th width="6%">Default value</th>
+     <th width="6%">Maximum value/size</th>
+     <th width="64%">Description</th>
+   </tr>
+ </thead>
+ <tbody>
+   <tr>
+     <td colspan="4">Product</td>
+     <td>Product</td>
+     <td>char</td>
+     <td>TelAF</td>
+     <td>TelAF</td>
+     <td>This value is fixed to "TelAF"</td>
+   </tr>
+   <tr>
+     <td colspan="4">Name</td>
+     <td>Name</td>
+     <td>char</td>
+     <td>Managed Connectivity Service</td>
+     <td>32</td>
+     <td>Optional and not used by the service.</td>
+   </tr>
+   <tr>
+     <td colspan="4">Extension</td>
+     <td>Extension</td>
+     <td>char</td>
+     <td>"/data/persist/telaf/"</td>
+     <td>511</td>
+     <td>If user provided JSON is available in this location, use that JSON.
+         <br>
+         Otherwise, use the JSON that is bundled with the service.</td>
+   </tr>
+   <tr>
+     <td rowspan="44">ManagedConnectivityService</td>
+     <td colspan="3">Version</td>
+     <td>Version</td>
+     <td>char</td>
+     <td>TAF_XX.YY.ZZ</td>
+     <td>16</td>
+     <td>This field is used by the service to identify which version of TelAF this configuration
+         file conforms to. This will be updated by Qualcomm when there is a change in the
+         configuration file.
+         <br>
+         Users should ensure only valid versions are used in this field. The service will
+         reject JSONs with invalid version.
+     </td>
+   </tr>
+   <tr>
+     <td rowspan="24">Configuration</td>
+     <td colspan="2">Name</td>
+     <td>Name</td>
+     <td>char</td>
+     <td>"Default"</td>
+     <td>32</td>
+     <td>Optional and not used by the   service.</td>
+   </tr>
+   <tr>
+     <td colspan="2" rowspan="3">Sim (Array Object)</td>
+     <td>ID</td>
+     <td>unit8_t</td>
+     <td>Starts with 1 and is incremented by 1 for each array object</td>
+     <td></td>
+     <td>User provided ID to uniquely identify this object.</td>
+   </tr>
+   <tr>
+     <td>Name</td>
+     <td>char</td>
+     <td>"SIM1"</td>
+     <td>32</td>
+     <td>User provided name for the Sim object. This is used by the service and should be a valid
+         string.
+         <br>
+         Note: In case of multiple Sim objects, user should ensure name is unique among Sim
+         objects. JSON will be marked as invalid otherwise.</td>
+   </tr>
+   <tr>
+     <td>SlotNumber</td>
+     <td>unit8_t</td>
+     <td>1</td>
+     <td>Refer TelAF SIM service.</td>
+     <td>Sim Slot number to use.</td>
+   </tr>
+   <tr>
+     <td colspan="2" rowspan="5">Network (Array Object)</td>
+     <td>ID</td>
+     <td>unit8_t</td>
+     <td>Starts with 1 and is incremented by 1 for each array object</td>
+     <td></td>
+     <td>User provided ID to uniquely identify this object.</td>
+   </tr>
+   <tr>
+     <td>Name</td>
+     <td>char</td>
+     <td>"Network1"</td>
+     <td>32</td>
+     <td>User provided name for the Network object. This is used by the service and should be a
+         valid string.
+         <br>
+         Note: In case of multiple Network objects, user should ensure name is unique among Network
+         objects. JSON will be marked as invalid otherwise.</td>
+     </td>
+   </tr>
+   <tr>
+     <td>Use_Sim_ID</td>
+     <td>unit8_t</td>
+     <td>Points to a valid Sim object</td>
+     <td></td>
+     <td>This is a reference to the Sim object this Network object depends upon.</td>
+   </tr>
+   <tr>
+     <td>PhoneID</td>
+     <td>unit8_t</td>
+     <td>0</td>
+     <td>Refer to TelAF radio service.</td>
+     <td>Phone ID to use if multi card is supported</td>
+   </tr>
+   <tr>
+     <td>Registration</td>
+     <td>char</td>
+     <td>Auto</td>
+     <td>Auto</td>
+     <td>Only "Auto" mode is supported.</td>
+   </tr>
+   <tr>
+     <td rowspan="15">Data</td>
+     <td>ID</td>
+     <td>ID</td>
+     <td>unit8_t</td>
+     <td>Starts with 1 and is incremented by 1 for each array object</td>
+     <td></td>
+     <td>User provided ID to uniquely identify this object.</td>
+   </tr>
+   <tr>
+     <td>Name</td>
+     <td>Name</td>
+     <td>char</td>
+     <td>"Data1"</td>
+     <td>32</td>
+     <td>User provided name for the Data object.  This is used by the service and should be a valid
+         string.
+         <br>
+         Note: In case of multiple Data objects, user should ensure name is unique among Data
+         objects. JSON will be marked as invalid otherwise.</td>
+     </td>
+   </tr>
+   <tr>
+     <td>Use_Network_ID</td>
+     <td>Use_Network_ID</td>
+     <td>unit8_t</td>
+     <td>Points to a valid Network object</td>
+     <td></td>
+     <td>This is a reference to the Network object on which this Data
+         object depends. </td>
+   </tr>
+   <tr>
+     <td rowspan="2">Profile  </td>
+     <td>Number</td>
+     <td>unit8_t</td>
+     <td>1</td>
+     <td>Refer to TelAF data call service.</td>
+     <td>The data profile to use with this data object.</td>
+   </tr>
+   <tr>
+     <td>APN</td>
+     <td>char</td>
+     <td>null</td>
+     <td>128</td>
+     <td>If the value is null or an empty string, do not make any changes to the APN.
+         <br> Otherwise, compare this APN with the NAD APN and update it if they are different.
+         <br> If there is only a single space, set the APN to an empty string.
+         <br> If APN set fails, log an ERROR, stop the service.</td>
+   </tr>
+   <tr>
+     <td>AutoStart</td>
+     <td>AutoStart</td>
+     <td>char</td>
+     <td>Yes</td>
+     <td>Yes<br>No<br></td>
+     <td>"Yes": Data session with this profile will be started
+         automatically by the Service.<br> If there are multiple
+         objects set to auto start, which data IDs will be started will be based
+         on Policy's "Priority" and "MultiDataSession".
+         <br>
+         "No": User application will have to call "Data_Start()" function with the respective
+         "Data ID" reference. </td>
+   </tr>
+   <tr>
+     <td rowspan="4">DataStartRetry</td>
+     <td>Enable</td>
+     <td>char</td>
+     <td>Yes</td>
+     <td>Yes<br>No<br></td>
+     <td>
+         In case of error during data start, this controls whether data retry
+         should be attempted or not.  In data start retry, the data session is stopped and
+         restarted a specified number of times with a configured delay between the data start
+         attempts.
+        <br>If DataStartConnectionTest is enabled, then a data session will be considered as
+            CONNECTED only after the data start connection test succeeds.
+        <br>If data start fails even after retries, data will be marked as FAILED and
+          " ConnectivityRecovery" will be tried, if enabled.
+       </td>
+   </tr>
+   <tr>
+     <td>RetryCount</td>
+     <td>uint8_t</td>
+     <td>1</td>
+     <td>5</td>
+     <td>Number of times to retry DataStartRetry operation.</td>
+   </tr>
+   <tr>
+     <td>BackoffInterval</td>
+     <td>uint16_t</td>
+     <td>30</td>
+     <td>30</td>
+     <td>The time in seconds to wait before the first data start retry attempt. Only 30s is
+          supported.
+      </td>
+   </tr>
+   <tr>
+     <td>BackoffIntervalStep</td>
+     <td>uint8_t</td>
+     <td>2</td>
+     <td>2</td>
+     <td>
+      When RetryCount is more than 1, interval between subsequent retries will be increased
+      by the specified step. Only 1 and 2 are supported.
+      <br>Examples on how the intervals are calculated:
+      <br>RetryCount          = 5
+      <br>BackoffInterval     = 30s
+      <br>BackoffIntervalStep = 1
+      <br>&emsp;&emsp; Retry intervals = 30, 30, 30, 30, 30 seconds
+      <br>BackoffIntervalStep = 2
+      <br>&emsp;&emsp; Retry intervals = 30, 60, 120, 240, 480 seconds.
+      </td>
+   </tr>
+   <tr>
+     <td rowspan="2">DataStartConnectionTest
+       <br><br>URL or IP that the Managed Service should use for running connection tests.
+               This will be used only once during data startup for checking connectivity.
+                null values will be skipped.
+       <br>Connection test will be run over the interface that matches with the data profile.
+       <br>cURL will be tried first, and if it fails ping will be used. If ping also fails,
+           data will be treated as not connected.
+        </td>
+     <td>URL</td>
+     <td>char</td>
+     <td>null</td>
+     <td>256</td>
+     <td>URL to use for data start connection test.</td>
+   </tr>
+   <tr>
+     <td>IPv4</td>
+     <td>char</td>
+     <td>null</td>
+     <td>15</td>
+     <td>IPv4 address to use for data start connection test.</td>
+   </tr>
+   <tr>
+     <td rowspan="3">PeriodicConnectivityCheck</td>
+     <td>Interval</td>
+     <td>uint16_t</td>
+     <td>60</td>
+     <td>3600</td>
+     <td>Interval to wait between connectivity checks in seconds.</td>
+   </tr>
+   <tr>
+     <td>RetryCount</td>
+     <td>uint8_t</td>
+     <td>5</td>
+     <td>10</td>
+     <td>Number of times to retry connectivity check before triggering recovery mechanisms.
+         DATA_CONNECTION_STALLED event will be sent once with the first periodic connectivity
+         check failure.</td>
+   </tr>
+   <tr>
+     <td>URL</td>
+     <td>char</td>
+     <td>null</td>
+     <td>256</td>
+     <td>URL to use for periodic connectivity test.</td>
+   </tr>
+   <tr>
+     <td rowspan="18">Policy</td>
+     <td colspan="2">Name</td>
+     <td>Name</td>
+     <td>char</td>
+     <td>Default</td>
+     <td>32</td>
+     <td>Optional and not used by the service.</td>
+   </tr>
+   <tr>
+     <td rowspan="17">DataSession</td>
+     <td rowspan="2">DataConnection</td>
+     <td>Priority</td>
+     <td>uint8_t</td>
+     <td>1</td>
+     <td></td>
+     <td>User defined priority.<br> 1 is highest priority.
+         <br> Duplicates are not allowed. </td>
+   </tr>
+   <tr>
+     <td>Use_Data_ID</td>
+     <td>uint8_t</td>
+     <td>Data ID</td>
+     <td></td>
+     <td>Valid reference to Configuration-&gt;Data→ID.
+         <br> Duplicates are not allowed. </td>
+   </tr>
+   <tr>
+     <td rowspan="2">MultiDataSession</td>
+     <td>Enable</td>
+     <td>char</td>
+     <td>No</td>
+     <td>Yes<br>No</td>
+     <td>Multiple data session support, enable/disable.</td>
+   </tr>
+   <tr>
+     <td>NumConnections</td>
+     <td>uint8_t</td>
+     <td>1</td>
+     <td>Number of objects in Policy:DataConnection</td>
+     <td>Maximum number of multiple data sessions to start. Multi data sessions are started
+          in order of priority.</td>
+   </tr>
+   <tr>
+     <td rowspan="7">ConnectivityRecovery</td>
+     <td>Level</td>
+     <td>char</td>
+     <td>None</td>
+     <td>None<br>L1<br>L2<br>L3</td>
+     <td>This recovery mechanism will kick in after DataStartRetry fails.
+        <br> If a recovery operation is started, all data sessions will be disconnected, all timers
+             will be stopped and all states will be reset to initial state.
+        <br> If a recovery operation is canceled or if it fails, the service will retry the
+             operation after RetryWaitTime seconds, if enabled.
+        <br> Supported values:
+        <br> Level specifies the maximum level of recovery to perform. Specifying a level
+             also enables the level(s) above it. The service performs recovery operations
+             in the following order.
+        <br> None → Recovery is disabled. Default value.
+        <br> L1 → Level 1 connectivity recovery. During this operation, the radio is turned
+                off and on to trigger NAD re-registration. Between radio off and radio on,
+                there will be a wait time that is specified using RadioOffOnInterval.
+        <br> L2 → Level 2 connectivity recovery. During this operation, the sim is turned
+                off and on to trigger SIM reinitialization and NAD re-registration. Between
+                sim off and sim on, there will be a wait time that is specified using
+                SimOffOnInterval.
+                Enabling L2 also enables L1 recovery. The service will try L1 recovery followed
+                by L2 recovery.
+        <br> L3 -> Level 3 connectivity recovery. A NAD reboot is tiggered using Managed
+                Power Management service.
+                Enabling L3 also enables L1 and L2 recoveries. The service will try L1 recovery
+                followed by L2 recovery and then L3 recovery.
+     </td>
+   </tr>
+   <tr>
+     <td>StartWaitTime</td>
+     <td>uint8_t</td>
+     <td>30</td>
+     <td>240</td>
+     <td>Time in seconds the service will wait between connectivity recovery scheduled and started
+         events. Applications will be able to cancel the connectivity recovery process within this
+         time.
+     </td>
+   </tr>
+   <tr>
+     <td>RetryWaitTime</td>
+     <td>uint16_t</td>
+     <td>300</td>
+     <td>3600</td>
+     <td>Time in seconds the service will wait before retrying a recovery process that was
+         canceled or failed.
+         <br> If set to 0, then retry will not be attempted by the service.The service should be
+          restarted externally.
+     </td>
+   </tr>
+   <tr>
+     <td>RadioOffOnInterval</td>
+     <td>uint8_t</td>
+     <td>5</td>
+     <td>240</td>
+     <td>Time to wait in seconds between the radio off and on operations.</td>
+   </tr>
+   <tr>
+     <td>SimOffOnInterval</td>
+     <td>uint8_t</td>
+     <td>5</td>
+     <td>240</td>
+     <td>Time to wait in seconds between the SIM off and on operations.</td>
+   </tr>
+   <tr>
+     <td>AllowCancel</td>
+     <td>char</td>
+     <td>No</td>
+     <td>Yes<br>No<br></td>
+     <td>
+        Allow applications to cancel a scheduled recovery.
+        <br>Yes → Allow applications to cancel a scheduled recovery.
+        <br>No → Do not allow applications to cancel a scheduled recovery.
+            taf_mngdConn_CancelRecoveryOperation() will return LE_NOT_PERMITTED
+       </td>
+   </tr>
+    <tr>
+     <td>VerifyCancelingApp</td>
+     <td>char</td>
+     <td>No</td>
+     <td>Yes<br>No<br></td>
+     <td>
+        Service to verify if calling app had previously requested a data session using
+        taf_mngdConn_StartData().<br>
+        Yes → taf_mngdConn_CancelRecoveryOperation() will only be allowed if the calling app had
+              previously requested data using taf_mngdConn_StartData(). If the app that calls
+              taf_mngdConn_CancelRecoveryOperation() had not previously called
+              taf_mngdConn_StartData(), the service will return LE_NOT_PERMITTED.<br>
+        No → Service will not check if the app calling taf_mngdConn_CancelRecoveryOperation() had
+             previously called taf_mngdConn_StartData().
+       </td>
+   </tr>
+   <tr>
+    <td rowspan="4">AppManagedConnectivityRecovery</td>
+     <td>Enable</td>
+     <td>char</td>
+     <td>No</td>
+     <td>Yes<br>No<br></td>
+     <td>
+        Allow app triggered recovery mechanisms.
+        <br>Yes → Allow applications to trigger recovery.
+        <br>No → Do not allow applications to trigger recovery.<br>
+                 taf_mngdConn_StartDataRetry() will return LE_NOT_PERMITTED.
+     </td>
+   </tr>
+   <tr>
+    <td>VerifyCallingApp</td>
+    <td>char</td>
+    <td>Yes</td>
+    <td>Yes<br>No<br></td>
+    <td>
+        Service to verify if calling app had previously requested a data session using
+        taf_mngdConn_StartData().<br>
+        If enabled, taf_mngdConn_StartDataRetry()  will only be allowed if the calling app had
+        previously requested data using taf_mngdConn_StartData(). If the app that calls
+        taf_mngdConn_StartDataRetry() API had not previously called taf_dcs_StartData(), the service
+        will return LE_NOT_PERMITTED.<br>
+        After a client calls taf_mngdConn_StartDataRetry(), the service will save the calling
+        client's ID until the "MaxTimeBetweenTriggers" expires. If another client calls
+        taf_mngdConn_StartDataRetry() when "MaxTimeBetweenTriggers" is active, the service will
+        return LE_BUSY.<br>
+        Note: taf_mngdConn_StartDataRetry() API is not multi app safe, as it does not wait for all
+              apps that requested data to either call taf_mngdConn_StartData() or disconnect. 
+    </td>
+   </tr>
+   <tr>
+    <td>MinTimeBetweenTriggers</td>
+    <td>uint16_t</td>
+    <td>30</td>
+    <td>3600</td>
+    <td>
+        Time period in seconds.<br>
+        The minimum time between 2 taf_mngdConn_StartDataRetry() calls, either from the same or
+        different apps. The timer is started after the first call is made and subsequent calls
+        within this time will return LE_NOT_POSSIBLE.
+    </td>
+   </tr>
+   <tr>
+    <td>MaxTimeBetweenTriggers</td>
+    <td>uint16_t</td>
+    <td>300</td>
+    <td>3600</td>
+    <td>
+        Time period in seconds.<br>
+        The maximum time the service will maintain the recovery state. If the
+        taf_mngdConn_StartDataRetry()API is called again within this period by the same client, then
+        the service will trigger the next level of recovery in the following order:
+        StartRetry → L1 → L2 → L3.<br>
+        After this timer expires, the calling client information will be cleared. On the next
+        invocation of taf_mngdConn_StartDataRetry(), the service will start a new recovery process.
+    </td>
+   </tr>
+   <tr>
+     <td rowspan="2">APIManagement</td>
+     <td>StartDataTimeout</td>
+     <td>uint8_t</td>
+     <td>5</td>
+     <td>240</td>
+     <td> Timeout for StartData API </td>
+     </td>
+   </tr>
+   <tr>
+     <td>StopDataTimeout</td>
+     <td>uint8_t</td>
+     <td>5</td>
+     <td>240</td>
+     <td> Timeout for StopData API </td>
+     </td>
+   </tr>
+   </tr>
+ </tbody>
+ </table>
+ @endrst
+ *
+ * @par
+ * @verbatim
+ List of valid values for "Version" key:
+      -- 23.07.00
+      -- 23.11.00
+      -- 24.03.00
+      -- 24.06.00
+      -- 24.07.00
+      -- 24.09.00
+      -- 24.12.00
+      -- 25.02.00
+      -- 25.03.00
+ @endverbatim
+ * @par Multiple Data Sessions:
+ *      For multiple data sessions, add Data object(s) and matching DataConnection object(s).
+ *
+ *
+ * @par Connection Test:
+ *      - It is not a mandatory operation and it is only launched when the data connection is
+ *        establishing by the service.
+ *      - This will be used only once during data startup for checking connectivity.
+ *      - If both of the URL and IPv4 are null, the connection test will be skipped.
+ *      - For configured URL and IPv4 addresses, cURL will be tried first, and if it fails ping will
+ *        be used. If ping also fails,the data connection establishment will be retried with
+ *        the Policy, based on DataStartRetry values.
+ *
+ *
+ *
+ * @b NOTE: The Managed Connectivity Service will will use default json if the JSON is invalid,
+ *          inaccessible or contains invalid values.
+ *
+ * @section taf_mngdConn_usage_flow Typical application call flow
+ *
+ * @rstblock
+ *
+ * - **Automatic Data Connection Establishment**
+ *
+ *   .. image:: /rst/flow_diagrams/conn_usage_flow_auto_data_connection.jpg
+ *
+ *   Background setup:
+ *
+ *   Set the Data→AutoStart key as Yes in the mngdConnectivity.json file.
+ *
+ *   Steps:
+ *
+ *   #a.1 -- Get the data reference for a given data ID.
+ *
+ *   #a.2 -- Register the data state change handler to be able to receive the data state notification.
+ *
+ *   #a.3 -- Query the data connection state with the data reference.
+ *
+ *   #a.4 -- Receive the data connected notification from TelAF managed connectivity service.
+ *
+ *   #a.5 -- Query the IP address of the active data connection.
+ *
+ *   #s.1 -- Parse mngdConnectivity.json and validate Configuration and Policy parameters. If the
+ *   .json file is inaccessible or if the validation fails, tafMngdConnSvc will use default json.
+ *
+ *   #s.2 -- Check SIM presence and registration.
+ *
+ *   #s.3 -- Register notification handlers.
+ *
+ *   #s.4 -- Start the data call.
+ *
+ *   #s.5 -- Receive the data call notification and process it.
+ *
+ *   **NOTE:** The application steps from #a.1 to #a.5 happen in parallel with TelAF managed connectivity
+ *   operation steps from #s.1 to #s.5. There is no strict sequence dependency from application operations
+ *   to the service operations.
+ *
+ * - **Customer Application Triggered Data Connection Establishment**
+ *
+ *   .. image:: /rst/flow_diagrams/conn_usage_flow_user_triggered_data_connection.jpg
+ *
+ *   Background setup:
+ *
+ *   Set Data→AutoStart key as No in the mngdConnectivity.json file.
+ *
+ *   Steps:
+ *
+ *   #s.1 -- Parse mngdConnectivity.json and validate Configuration and Policy parameters. If the
+ *   .json file is inaccessible or if the validation fails, tafMngdConnSvc will use default json.
+ *
+ *   #s.2 -- Register notification handlers.
+ *
+ *   #a.3 -- Get the data reference for a given data ID.
+ *
+ *   #a.4 -- Register the data state change handler to be able to receive the data state notification.
+ *
+ *   #a.5 -- Query the data connection state with the data reference.
+ *
+ *   #a.6 -- Trigger the data connection establishment startup.
+ *
+ *   #s.7 -- Check SIM presence and registration.
+ *
+ *   #s.8 -- Start the data call.
+ *
+ *   #s.9 -- Receive the data call state notification and process it.
+ *
+ *   #a.10 -- Receive the data connected state notification.
+ *
+ *   #a.11 -- Query the IP address of the active data connection.
+ *
+ * @endrst
+ * <HR>
+ *
+ */
+//--------------------------------------------------------------------------------------------------
+
+
+API_VERSION = 1;
+SERVING_VERSION = 1;
+
+//--------------------------------------------------------------------------------------------------
+/*
+ * Include Managed Services common definitions.
+ */
+//--------------------------------------------------------------------------------------------------
+USETYPES taf_sim.api;
+USETYPES taf_radio.api;
+USETYPES taf_dcs.api;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The maximum length of an object's name in the configuration JSON.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MAX_NAME_LEN = 32;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The maximum value for configuration JSON's DataStartRetry:RetryCount.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MAX_DATA_START_RETRY_COUNT = 5;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The maximum value for configuration JSON's DataStartRetry:BackoffInterval in seconds.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MAX_DATA_START_RETRY_BACKOFF_INTERVAL = 30;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The maximum value for configuration JSON's DataStartRetry:BackoffIntervalStep.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MAX_DATA_START_RETRY_BACKOFF_INTERVAL_STEP = 2;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The minuimum value for configuration JSON's DataStartRetry:BackoffIntervalStep.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MIN_DATA_START_RETRY_BACKOFF_INTERVAL_STEP = 1;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The maximum value for configuration JSON's PeriodicConnectivityCheck:Interval in seconds.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MAX_PERIODIC_CONN_CHECK_INTERVAL = 3600;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The maximum value for configuration JSON's PeriodicConnectivityCheck:RetryCount.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MAX_PERIODIC_CONN_CHECK_RETRY_COUNT = 10;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The maximum value for configuration JSON's ConnectivityRecovery:StartWaitTime in seconds.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MAX_CONN_RECOVERY_START_WAIT_TIME = 240;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The maximum value for configuration JSON's ConnectivityRecovery:RetryWaitTime in seconds.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MAX_CONN_RECOVERY_RETRY_WAIT_TIME = 3600;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The maximum value for configuration JSON's ConnectivityRecovery:RadioOffOnInterval in seconds.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MAX_CONN_RECOVERY_RADIO_OFF_ON_INTERVAL = 240;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The minimum value for configuration JSON's ConnectivityRecovery:RadioOffOnInterval in seconds.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MIN_CONN_RECOVERY_RADIO_OFF_ON_INTERVAL = 5;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The maximum value for configuration JSON's ConnectivityRecovery:SimOffOnInterval in seconds.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MAX_CONN_RECOVERY_SIM_OFF_ON_INTERVAL = 240;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The minimum value for configuration JSON's ConnectivityRecovery:SimOffOnInterval in seconds.
+ */
+//--------------------------------------------------------------------------------------------------
+DEFINE MIN_CONN_RECOVERY_SIM_OFF_ON_INTERVAL = 5;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Reference to data.
+ */
+//--------------------------------------------------------------------------------------------------
+REFERENCE Data;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The data state.
+ */
+//--------------------------------------------------------------------------------------------------
+ENUM DataState{
+    DATA_DISCONNECTED,      ///< Transition state to CONNECTED or FAILED.
+    DATA_CONNECTED,         ///< Data connected state.
+    DATA_CONNECTION_FAILED, ///< The service is not able to reconnect data even after retries.
+    DATA_CONNECTION_STALLED ///< Transition state to CONNECTED or DISCONNECTED.
+};
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Handler for data state events.
+ *
+ * @param[in] dataRef    The data reference that triggered this event.
+ * @param[in] state      The data state.
+ * @param[in] contextPtr The context provided by the application when adding the event handler.
+ *
+ */
+//--------------------------------------------------------------------------------------------------
+HANDLER DataStateHandler
+(
+    Data dataRef                             IN, ///< The data reference that triggered this event.
+    DataState state                          IN  ///< The data state.
+);
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The data state events.
+ */
+//--------------------------------------------------------------------------------------------------
+EVENT DataState
+(
+    Data dataRef,                                            ///< The data reference.
+    DataStateHandler handler                                 ///< The event handler reference.
+) = (0,1);
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The connectivity recovery events.
+ */
+//--------------------------------------------------------------------------------------------------
+ENUM RecoveryEvent{
+    RECOVERY_SCHEDULED, ///< Recovery is scheduled to start.
+    RECOVERY_STARTED,   ///< Recovery is started.
+    RECOVERY_CANCELED,  ///< Scheduled recovery is canceled.
+    RECOVERY_FAILED     ///< Recovery failed.
+};
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The connectivity recovery operations.
+ */
+//--------------------------------------------------------------------------------------------------
+ENUM RecoveryOperation{
+    RECOVERY_NONE,         ///< Unsupported operation.
+    RECOVERY_RADIO_OFF_ON, ///< Radio off on recovery operation.
+    RECOVERY_SIM_OFF_ON,   ///< Sim off on recovery operation.
+    RECOVERY_NAD_REBOOT    ///< NAD reboot recovery operation.
+};
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Handler for data recovery events.
+ *
+ * @param[in] dataRef    The data reference that triggered this event.
+ * @param[in] event      The recovery event.
+ * @param[in] operation  The recovery operation relevant to the event.
+ * @param[in] contextPtr The context provided by the application when adding the event handler.
+ *
+ */
+//--------------------------------------------------------------------------------------------------
+HANDLER RecoveryEventHandler
+(
+    Data              dataRef    IN,  ///< The data reference that triggered this event.
+    RecoveryEvent     event      IN,  ///< The recovery event.
+    RecoveryOperation operation  IN   ///< The recovery operation relevant to the event.
+);
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * The data recovery events.
+ */
+//--------------------------------------------------------------------------------------------------
+EVENT RecoveryEvent
+(
+    RecoveryEventHandler handler ///< The recovery event handler reference.
+) = (2,3);
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Gets the data reference for the given data ID(as provided in the configuration JSON).
+ *
+ * @return
+ *  - NULL -- Error.
+ *  - Others -- The data reference.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION Data GetData
+(
+    uint8 dataId                                         IN ///< The data ID to use.
+) = 4;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Gets the data reference for the given data name(as provided in the configuration JSON).
+ *
+ * @return
+ *  - NULL -- Error.
+ *  - Others -- The data reference.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION Data GetDataByName
+(
+    string dataName[MAX_NAME_LEN]                        IN ///< The data name to use.
+) = 5;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Gets the data object ID (as provided in the configuration JSON) for the given data reference.
+ *
+ * @return
+ *   - LE_OK -- Succeeded.
+ *   - LE_NOT_FOUND -- Data reference not found.
+ *   - Appropriate error is returned on failure.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t GetDataIdByRef
+(
+    Data dataRef IN, ///< The data reference.
+    uint8 dataId OUT ///< The data object ID from the configuration JSON.
+) = 6;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Gets the data object name (as provided in the configuration JSON) for the given data reference.
+ *
+ * @return
+ *   - LE_OK -- Succeeded.
+ *   - LE_NOT_FOUND -- Data reference not found.
+ *   - Appropriate error is returned on failure.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t GetDataNameByRef(
+    Data dataRef IN,                  ///< The data reference.
+    string dataName[MAX_NAME_LEN] OUT ///< The data object name from the configuration JSON.
+) = 7;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Gets the data profile number (as provided in the configuration JSON) for the given data
+ * reference. The profile number can be used by applications with the data call service to get
+ * in depth details about the profile.
+ *
+ * @return
+ *   - LE_OK -- Succeeded.
+ *   - LE_NOT_FOUND -- Data reference not found.
+ *   - Appropriate error is returned on failure.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t GetProfileNumberByRef(
+    Data  dataRef IN,                 ///< The data reference.
+    uint8 dataProfileNumber OUT       ///< The data profile number from the configuration JSON.
+) = 8;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Gets the phone ID that is used by the data object (as provided in the configuration JSON).
+ *
+ * @return
+ *   - LE_OK -- Succeeded.
+ *   - LE_NOT_FOUND -- Data reference not found.
+ *   - Appropriate error is returned on failure.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t GetPhoneIdByRef
+(
+    Data  dataRef IN,                 ///< The data reference.
+    uint8 phoneId OUT                 ///< The phone ID used by the provided data reference.
+) = 9;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Starts a data session for the given data reference. This API should be used when the value of
+ * "AutoStart" is "No" in the configuration file.
+ *
+ * The service tracks clients that call StartData for Data objects with AutoStart:No and is used
+ * to manage StopData behavior.
+ *
+ * @return
+ *   - LE_OK -- Succeeded.
+ *   - LE_DUPLICATE -- The data connection is already started.
+ *   - LE_IN_PROGRESS -- The data connection establishment retry is in progress.
+ *   - LE_TIMEOUT -- The API is taking longer than StartDataTimeout seconds. This is not a failure.
+ *                   Application should monitor DataState events for actual data state.
+ *   - Appropriate error is returned on failure.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t StartData
+(
+    Data dataRef                                          IN ///< The data reference.
+) = 10;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Stops a data cellular session for the given data reference.
+ *
+ * Data will be stopped only when all clients that have called StartData for data objects with
+ * AutoStart:No either stop data or exit.
+ *
+ * @return
+ *   - LE_OK -- Succeeded.
+ *   - LE_NOT_PERMITTED -- If data is auto started by the service, application cannot stop data.
+ *   - LE_NOT_POSSIBLE  -- If data start connection test is enabled and it is in progress,
+ *                         LE_NOT_POSSIBLE is returned. Applications can retry StopData after an
+ *                         appropriate delay. Data start connection test is either curl or 5 ping
+ *                         packets, which typically takes around 5s.
+ *   - LE_TIMEOUT -- The API is taking longer than StopDataTimeout seconds. This is not a failure.
+ *                   Application should monitor DataState events for actual data state.
+ *   - Appropriate error is returned on failure.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t StopData
+(
+    Data dataRef                                          IN ///< The data reference.
+) = 11;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Gets the data connection state information for the given data reference.
+ *
+ * @return
+ *   - LE_OK -- Succeeded.
+ *   - LE_BAD_PARAMETER -- Bad parameter.
+ *   - Appropriate error is returned on failure.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t GetDataConnectionState
+(
+    Data dataRef                                          IN,  ///< The data reference.
+    DataState state                                       OUT ///< The data state.
+) = 12;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Gets the data connection IP addresses for the given data reference. An empty string is returned
+ * if either IP address is not available.
+ *
+ * @return
+ *   - LE_OK -- Succeeded.
+ *   - LE_BAD_PARAMETER -- Bad parameter.
+ *   - Appropriate error is returned on failure.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t GetDataConnectionIPAddresses
+(
+    Data dataRef IN,                                ///< The data reference.
+    string IPv4Addr[taf_dcs.IPV4_ADDR_MAX_LEN] OUT, ///< IPv4 Address.
+    string IPv6Addr[taf_dcs.IPV6_ADDR_MAX_LEN] OUT  ///< IPv6 Address.
+) = 13;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Starts the data retry mechanism. If data session is connected, the data session will be
+ * disconnected before data retry mechanism is started. This function is asynchronous and
+ * applications should monitor ::taf_mngdConn_DataStateHandlerFunc_t for the corresponding
+ * events.
+ *
+ * @return
+ *   - LE_OK -- Succeeded.
+ *   - LE_BAD_PARAMETER -- Bad parameter.
+ *   - Appropriate error is returned on failure.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t StartDataRetry
+(
+    Data dataRef IN                                ///< The data reference.
+) = 14;
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * Cancels a scheduled recovery. A recovery could be scheduled for one or more data
+ * connetions. For a scheduled recovery to be canceled, this API should be called for all
+ * data references for which recovery has been scheduled.
+ *
+ * @return
+ *   - LE_OK            -- Succeeded.
+ *   - LE_NOT_POSSIBLE  -- A recovery has not been scheduled.
+ *   - LE_NOT_PERMITTED -- A recovery has already started.
+ *   - Appropriate error is returned on failure.
+ */
+//--------------------------------------------------------------------------------------------------
+FUNCTION le_result_t CancelRecovery
+(
+    Data               dataRef    IN ///< The data reference.
+) = 15;

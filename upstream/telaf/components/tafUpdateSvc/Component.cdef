@@ -1,0 +1,77 @@
+provides:
+{
+    api:
+    {
+        taf_update.api
+        taf_appMgmt.api
+        taf_fwupdate.api
+        taf_flash.api
+    }
+}
+
+requires:
+{
+    api:
+    {
+        le_update.api
+
+        le_appRemove.api
+        le_appCtrl.api
+        le_appInfo.api
+
+        le_cfg.api
+    }
+
+    component:
+    {
+        $LEGATO_ROOT/components/watchdogChain
+        $TELAF_ROOT/components/tafHalComp
+    }
+
+
+    lib:
+    {
+        libComponent_taf_pa_flash.so
+        libComponent_taf_pa_flashDef.so
+    }
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+    -I$LEGATO_BUILD/framework/libjansson/include
+    -I$TELAF_ROOT/include
+    -I$TELAF_ROOT/components/tafHalComp
+    -I$TELAF_ROOT/include/plugin
+    -I$TELAF_PA_DEFAULT/include
+    -std=c++17
+    -DTAFPA_ENABLE_LEGACY_MACROS=1
+}
+
+ldflags:
+{
+    -L$TELAF_DEFAULT_PA_LIB_DIR/lib
+    -lssl
+    -lcrypto
+    -ljansson
+}
+
+sources:
+{
+    tafUpdateSvc.cpp
+    tafUpdateImpl.cpp
+    tafAppMgmtSvc.cpp
+    tafAppMgmtImpl.cpp
+    tafFwUpdateSvc.cpp
+    tafFwUpdateImpl.cpp
+    tafFlashSvc.cpp
+    tafUpdateConfigTreeHelper.cpp
+}
+
+bundles:
+{
+    file:
+    {
+        [r] tafUpdate.json    /
+    }
+}

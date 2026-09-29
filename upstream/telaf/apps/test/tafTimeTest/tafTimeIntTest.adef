@@ -1,0 +1,35 @@
+maxThreads: 600
+sandboxed: false
+
+executables:
+{
+    tafTimeIntTest = ( tafTimeIntTest )
+}
+
+start: manual
+
+processes:
+{
+    run:
+    {
+        (tafTimeIntTest)
+    }
+
+    faultAction: stopApp
+}
+
+capability:
+{
+        CAP_NET_ADMIN
+}
+
+bindings:
+{
+    tafTimeIntTest.tafTimeIntTest.taf_time -> tafTimeSvc.taf_time
+}
+
+// Add SELinux module
+components:
+{
+//    $TELAF_ROOT/security/selinux/sepolicy/test/tafTimeIntTest/component
+}

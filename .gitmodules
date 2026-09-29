@@ -1,5 +1,0 @@
-[submodule "submodules/legato-af"]
-	path = submodules/legato-af
-	url = https://github.com/legatoproject/legato-af.git
-	branch = master
-	ignore = dirty

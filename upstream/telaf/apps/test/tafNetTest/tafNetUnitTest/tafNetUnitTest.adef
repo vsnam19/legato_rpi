@@ -1,0 +1,30 @@
+maxThreads: 600
+sandboxed: false
+
+executables:
+{
+    tafNetUnitTest = ( tafNetComponent )
+}
+
+start: manual
+
+processes:
+{
+    run:
+    {
+        (tafNetUnitTest)
+    }
+
+    envVars:
+    {
+        LE_LOG_LEVEL = DEBUG
+    }
+
+    faultAction: stopApp
+
+}
+
+bindings:
+{
+    tafNetUnitTest.tafNetComponent.taf_net -> tafNetSvc.taf_net
+}

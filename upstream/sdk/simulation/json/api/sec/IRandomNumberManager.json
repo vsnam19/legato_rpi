@@ -1,0 +1,10 @@
+{
+    "IRandomNumberManager": {
+        "getRandomNumber": {
+            "error" : "SUCCESS"
+        },
+        "getRandomData": {
+            "error" : "SUCCESS"
+        }
+    }
+}

@@ -1,0 +1,12 @@
+requires:
+{
+    api:
+    {
+        le_fwupdate = taf_fwupdate.api  [manual-start]
+    }
+}
+
+sources:
+{
+    fwupdate.c
+}

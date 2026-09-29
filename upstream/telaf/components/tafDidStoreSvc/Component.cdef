@@ -1,0 +1,50 @@
+provides:
+{
+    api:
+    {
+        taf_diagDidStore.api [manual-start]
+    }
+}
+
+requires:
+{
+    component:
+    {
+        $TELAF_ROOT/components/tafHalComp
+    }
+    api:
+    {
+        taf_diagDataID.api [manual-start]
+        le_appInfo.api
+    }
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+    -I$TELAF_ROOT/include
+    -I$TELAF_ROOT/components/tafHalComp
+    -I$TELAF_ROOT/include/plugin
+    -I${LEGATO_ROOT}/framework/liblegato
+}
+
+cflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+    -I$TELAF_ROOT/include
+}
+
+sources:
+{
+        tafDidStoreSvc.cpp
+        tafDidStoreImpl.cpp
+}
+
+bundles:
+{
+    file:
+    {
+        // Include a default DID config file
+        [r] tafDidStore.json   /
+    }
+}

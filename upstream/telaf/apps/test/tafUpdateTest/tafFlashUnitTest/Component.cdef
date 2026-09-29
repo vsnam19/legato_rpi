@@ -1,0 +1,12 @@
+sources:
+{
+    tafFlashUnitTest.c
+}
+
+requires:
+{
+    api:
+    {
+        taf_flash.api
+    }
+}

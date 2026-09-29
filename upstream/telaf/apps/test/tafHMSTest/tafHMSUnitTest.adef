@@ -1,0 +1,28 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+
+executables:
+{
+    tafHMSUnitTest = ( tafHMSUnitTest )
+}
+
+start: manual
+
+processes:
+{
+    run:
+    {
+        (tafHMSUnitTest)
+    }
+    envVars:
+    {
+        LE_LOG_LEVEL = DEBUG
+    }
+    faultAction: stopApp
+}
+
+bindings:
+{
+    tafHMSUnitTest.tafHMSUnitTest.taf_hms -> tafHMSvc.taf_hms
+}

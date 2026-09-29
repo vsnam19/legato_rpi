@@ -1,0 +1,45 @@
+#
+# Configuration for Legato full supervisor daemon.
+#
+# Copyright (C) Sierra Wireless Inc.
+#
+
+### Options ###
+
+menu "Supervisor"
+
+config SUPERV_NICE_LEVEL
+  int "Nice level"
+  depends on POSIX
+  range -20 19
+  default $(def,$(LEGATO_FRAMEWORK_NICE_LEVEL),-19)
+  ---help---
+  The nice level of the Legato Supervisor, which forks other Legato processes.
+
+config SUPERV_APP_TMPFS_SIZE
+  int "App tmpfs size"
+  depends on LINUX
+  default 90112
+  ---help---
+  The size in bytes of the tmpfs partition created for each sandboxed App.
+
+config SUPERV_CGRP_NO_RELEASE_AGENT
+  bool "Disable CGROUP release_agent or not"
+  depends on LINUX
+  default y if TARGET_SIMULATION
+  default y if ("lxc"=$(BUILD_FLAVOR))
+  default n
+  ---help---
+  Disable the CGROUP release_agent mechanism for some virtual environments, such as:
+  containers of Docker and LXC.
+
+config SUPERV_ENABLE_CGROUP_V2
+  bool "Enable cgroup V2 simulation support or not"
+  depends on LINUX
+  default $(b2k,$(ENABLE_CGROUP_V2))
+  default y if TARGET_SIMULATION
+  ---help---
+  Enable this if the target platform uses cgroup V2
+
+
+endmenu # end "Supervisor"

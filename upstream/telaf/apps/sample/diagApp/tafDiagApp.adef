@@ -1,0 +1,46 @@
+maxThreads: 600
+sandboxed: false
+executables:
+{
+    tafDiagApp = ( diagAppComp )
+}
+
+
+processes:
+{
+    envVars:
+    {
+        LE_LOG_LEVEL = DEBUG
+    }
+
+    maxFileBytes: 1048576K
+}
+
+start: manual
+
+bindings:
+{
+    tafDiagApp.diagAppComp.taf_diagDataID -> tafDiagSvc.taf_diagDataID
+    tafDiagApp.diagAppComp.taf_diagSecurity -> tafDiagSvc.taf_diagSecurity
+    tafDiagApp.diagAppComp.taf_diagUpdate -> tafDiagSvc.taf_diagUpdate
+    tafDiagApp.diagAppComp.taf_diagReset -> tafDiagSvc.taf_diagReset
+    tafDiagApp.diagAppComp.taf_diagRoutineCtrl -> tafDiagSvc.taf_diagRoutineCtrl
+    tafDiagApp.diagAppComp.taf_diagIOCtrl -> tafDiagSvc.taf_diagIOCtrl
+    tafDiagApp.diagAppComp.taf_update -> tafUpdateSvc.taf_update
+    tafDiagApp.diagAppComp.taf_appMgmt -> tafUpdateSvc.taf_appMgmt
+    tafDiagApp.diagAppComp.taf_fwupdate -> tafUpdateSvc.taf_fwupdate
+    tafDiagApp.diagAppComp.taf_diag -> tafDiagSvc.taf_diag
+    tafDiagApp.diagAppComp.taf_diagAuth -> tafDiagSvc.taf_diagAuth
+
+#if ${LE_CONFIG_DIAG_VSTACK} = ""
+    tafDiagApp.diagAppComp.taf_diagDoIP -> tafDiagSvc.taf_diagDoIP
+#endif
+}
+
+// Add SELinux module
+components:
+{
+#if ${LE_CONFIG_TARGET_SIMULATION} = ""
+//    $TELAF_ROOT/security/selinux/sepolicy/sample/diagApp/component
+#endif
+}

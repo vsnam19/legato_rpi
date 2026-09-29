@@ -1,0 +1,22 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+executables:
+{
+    gpioApp = ( gpioAppComp )
+}
+
+
+processes:
+{
+    run:
+    {
+        (gpioApp)
+    }
+    envVars:
+    {
+        LE_LOG_LEVEL = DEBUG
+    }
+}
+
+start: manual

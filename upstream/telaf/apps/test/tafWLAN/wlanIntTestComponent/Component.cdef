@@ -1,0 +1,12 @@
+sources:
+{
+    wlanIntTest.cpp
+}
+
+requires:
+{
+    api:
+    {
+        taf_wlan.api
+    }
+}

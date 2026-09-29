@@ -1,0 +1,38 @@
+$(info Module: telaf)
+
+export LEGATO_TELAF_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+
+######### Platforms on which to use this module
+ifeq ($(TARGET),sa415m)
+     export READ_ONLY := 1
+
+     export SDEF_TO_USE ?= $(LEGATO_TELAF_ROOT)/sa415m.sdef
+
+     export STRIP_STAGING_TREE ?= 1
+
+else ifeq ($(TARGET),sa515m)
+     export READ_ONLY := 1
+
+     export SDEF_TO_USE ?= $(LEGATO_TELAF_ROOT)/sa515m.sdef
+
+     export STRIP_STAGING_TREE ?= 1
+
+else ifeq ($(TARGET),sa525m)
+     export READ_ONLY := 1
+
+     ifeq ($(BUILD_FLAVOR),lxc)
+        export SDEF_TO_USE ?= $(LEGATO_TELAF_ROOT)/sa525m-lxc.sdef
+     else
+        export SDEF_TO_USE ?= $(LEGATO_TELAF_ROOT)/sa525m.sdef
+     endif
+
+     export STRIP_STAGING_TREE ?= 1
+
+else ifeq ($(TARGET),simulation)
+     export READ_ONLY := 1
+
+     export SDEF_TO_USE ?= $(LEGATO_TELAF_ROOT)/simulation.sdef
+
+     export STRIP_STAGING_TREE ?= 1
+
+endif

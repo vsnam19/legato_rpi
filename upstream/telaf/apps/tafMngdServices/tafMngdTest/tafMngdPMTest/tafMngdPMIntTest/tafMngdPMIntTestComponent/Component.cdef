@@ -1,0 +1,17 @@
+sources:
+{
+    tafMngdPMIntTest.c
+}
+
+requires:
+{
+    api:
+    {
+       taf_mngdPm.api
+    }
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+}

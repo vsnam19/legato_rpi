@@ -1,0 +1,56 @@
+maxThreads: 600
+
+username: telaf
+
+startGroup: 11
+
+capability:
+{
+        CAP_WAKE_ALARM
+        CAP_SYS_TIME
+        CAP_DAC_OVERRIDE
+        CAP_SYS_ADMIN
+        CAP_NET_ADMIN
+}
+
+groups:
+{
+        system
+        diag
+        radio
+        inet
+        locclient
+}
+
+executables:
+{
+        tafTimeSvc = ( $TELAF_ROOT/components/tafTimeSvc )
+}
+
+start: auto
+
+processes:
+{
+        run:
+        {
+            (tafTimeSvc)
+        }
+
+        maxCoreDumpFileBytes: 100000K
+        maxFileBytes: 100000K
+        faultAction: restart
+}
+
+sandboxed: false
+
+bindings:
+{
+    tafTimeSvc.tafTimeSvc.taf_pm -> tafPMSvc.taf_pm
+    tafTimeSvc.tafTimeSvc.le_appInfo -> <tafcore>.le_appInfo
+    tafTimeSvc.tafTimeSvc.taf_mngdStorSecData ->  tafMngdStorageSvc.taf_mngdStorSecData
+}
+
+extern:
+{
+        tafTimeSvc.tafTimeSvc.taf_time
+}

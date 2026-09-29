@@ -1,0 +1,70 @@
+sandboxed: false
+
+start: auto
+
+maxThreads: 600
+
+username: telaf
+
+startGroup: 11
+
+capability:
+{
+    CAP_WAKE_ALARM
+    CAP_NET_RAW
+    CAP_IPC_LOCK
+    CAP_SYS_NICE
+    CAP_SYS_RESOURCE
+    CAP_NET_ADMIN
+    CAP_DAC_OVERRIDE
+#if ${LE_CONFIG_TEST_COVERAGE} = y
+    CAP_DAC_READ_SEARCH
+#endif
+}
+
+groups:
+{
+    sensors
+    gps
+}
+
+executables:
+{
+    tafSomeipGWSvc = ( $TELAF_ROOT/components/tafSomeipGWSvc )
+}
+
+processes:
+{
+    envVars:
+    {
+        VSOMEIP_CONFIGURATION_tafSomeipGWSvc = tafSomeipGWSvc.json
+        VSOMEIP_CONFIGURATION_tafSomeipGWSvc_1 = tafSomeipGWSvc_1.json
+        VSOMEIP_CONFIGURATION_tafSomeipGWSvc_2 = tafSomeipGWSvc_2.json
+        VSOMEIP_CONFIGURATION_tafSomeipGWSvc_3 = tafSomeipGWSvc_3.json
+        VSOMEIP_CONFIGURATION_tafSomeipGWSvc_4 = tafSomeipGWSvc_4.json
+        VSOMEIP_CONFIGURATION_tafSomeipGWSvc_5 = tafSomeipGWSvc_5.json
+        VSOMEIP_CONFIGURATION_tafSomeipGWSvc_6 = tafSomeipGWSvc_6.json
+        VSOMEIP_CONFIGURATION_tafSomeipGWSvc_7 = tafSomeipGWSvc_7.json
+        AUTO_ADD_ROUTE = YES
+    }
+
+    run:
+    {
+        ( tafSomeipGWSvc )
+    }
+
+    maxCoreDumpFileBytes: 100000K
+    maxFileBytes: 100000K
+    faultAction: restart
+}
+
+bindings:
+{
+}
+
+extern:
+{
+    tafSomeipGWSvc.tafSomeipGWSvc.taf_someipSvr
+    tafSomeipGWSvc.tafSomeipGWSvc.taf_someipClnt
+}
+

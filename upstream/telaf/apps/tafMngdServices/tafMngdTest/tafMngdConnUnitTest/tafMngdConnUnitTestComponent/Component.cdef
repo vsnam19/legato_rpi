@@ -1,0 +1,18 @@
+sources:
+{
+    tafMngdConnUnitTest.cpp
+}
+
+requires:
+{
+    api:
+    {
+       taf_mngdConn.api
+       le_cfg.api
+    }
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+}

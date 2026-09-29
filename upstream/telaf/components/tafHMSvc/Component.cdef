@@ -1,0 +1,44 @@
+ldflags:
+{
+    -L$TELAF_DEFAULT_PA_LIB_DIR/lib
+}
+
+provides:
+{
+    api:
+    {
+        taf_hms.api
+    }
+}
+
+requires:
+{
+    component:
+    {
+        $LEGATO_ROOT/components/watchdogChain
+
+    }
+    lib:
+    {
+        libComponent_taf_pa_health.so
+        libComponent_taf_pa_healthDef.so
+    }
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+    -I$TELAF_ROOT/include
+    -I$TELAF_PA_DEFAULT/include
+}
+
+cflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+}
+
+sources:
+{
+    tafHMSvc.cpp
+    tafHMImpl.cpp
+}

@@ -1,0 +1,20 @@
+username: telaf
+sandboxed: false
+start: auto
+startGroup: 23
+maxThreads: 600
+
+executables:
+{
+    tafLxcInitApp = ( tafLxcInitComp )
+}
+
+
+processes:
+{
+    run:
+    {
+        (tafLxcInitApp)
+    }
+    maxFileBytes: 262144K
+}

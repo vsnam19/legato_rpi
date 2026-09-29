@@ -1,0 +1,58 @@
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+policy_module(tafGpioSvc, 1.0)
+
+gen_require(`
+  type device_t;
+  type shell_exec_t;
+  type kmod_exec_t;
+  type telaf_app_rw_t;
+  type proc_t;
+  attribute can_load_kernmodule;
+')
+
+# Framework definition for telaf
+type telaf_tafGpioSvc_exec_t;
+files_type(telaf_tafGpioSvc_exec_t);
+
+type telaf_tafGpioSvc_t;
+
+type telaf_tafGpioSvc_data_t;
+files_type(telaf_tafGpioSvc_data_t);
+
+init_telaf_app_domain(telaf_tafGpioSvc_t,telaf_tafGpioSvc_exec_t)
+
+# read /dev/gpio* device
+allow telaf_tafGpioSvc_t device_t:chr_file { read open ioctl };
+
+# system command
+allow telaf_tafGpioSvc_t shell_exec_t:file { exec_file_perms };
+
+# read /proc/filesystems
+allow telaf_tafGpioSvc_t proc_t:file { read_file_perms };
+
+# run insmod
+typeattribute telaf_tafGpioSvc_t can_load_kernmodule;
+allow telaf_tafGpioSvc_t kmod_exec_t:file { exec_file_perms };
+mls_key_write_to_clearance(telaf_tafGpioSvc_t)
+modutils_read_module_deps(telaf_tafGpioSvc_t)
+
+# read gpioWakeupPin.conf
+allow telaf_tafGpioSvc_t telaf_app_rw_t:lnk_file { read_file_perms };
+
+# sa525m gpio devices
+ifdef(`sa525m',`
+gen_require(`
+      type gpiochip_device_t;
+    ')
+    allow telaf_tafGpioSvc_t gpiochip_device_t:chr_file read_file_perms;
+    allow telaf_tafGpioSvc_t modules_object_t:file map;
+')
+
+# use VHAL driver object
+telaf_load_vhal_modules(telaf_tafGpioSvc_t)
+
+# Allow update daemon to install/uninstall this service
+telaf_admin_manage_all_files_perms(telaf_tafGpioSvc_data_t)
+telaf_admin_manage_all_files_perms(telaf_tafGpioSvc_exec_t)

@@ -1,0 +1,19 @@
+sources:
+{
+    main.c
+}
+
+requires:
+{
+    api:
+    {
+        taf_locGnss.api
+        taf_locPos.api
+        taf_locPosCtrl.api
+    }
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+}

@@ -1,0 +1,42 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+domain_name: Generic
+
+common_props:
+  max_number_of_request_correctly_received_response_pending: 0xFF
+  occurrence_counter_processing: TEST-FAILED-BIT
+  dtc_status_availability_mask: 0x7F
+
+extended_data_records:
+  OccurrenceCounter:
+    short_name: OccurrenceCounter
+    record_element_bit_off_set: 0
+    base_type: uint8
+    record_number: 0x01
+    data_provider: DEM_OCCCTR
+    trigger: DEM_TRIGGER_ON_TEST_FAILED
+    update: True
+
+#Authentication
+authentication_antibruteforce:
+  authentication_antibruteforce_default:
+    AntiBruteForceCounterMaxValue: 10
+    DelayTimerInvokingValueInit: 60
+    DelayTimerInvokingValueMax: 960
+
+authentication_timeout:
+  b0:
+    AuthenticationTimeout: 30
+  b1:
+    AuthenticationTimeout: 30
+  b2:
+    AuthenticationTimeout: 30
+  b3:
+    AuthenticationTimeout: 30
+  b4:
+    AuthenticationTimeout: 30
+  b5:
+    AuthenticationTimeout: 30
+  b6:
+    AuthenticationTimeout: 30

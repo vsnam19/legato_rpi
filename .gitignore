@@ -3,6 +3,8 @@ build/
 *.update
 *.tar.bz2
 *.tar.gz
+*.tgz
+*.zip
 *.log
 .config.*
 
@@ -16,3 +18,13 @@ telaf_simulation_env/
 _build_*/
 apps/**/_build_*/
 samples/**/_build_*/
+vendor/**/_build_*/
+
+# Upstream exclusions
+upstream/**/build/
+upstream/**/rootfs/
+upstream/**/deps/source/
+upstream/**/deps/taf_rootfs/
+upstream/**/.codegraph/
+upstream/**/bin/
+upstream/**/staging/

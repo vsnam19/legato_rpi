@@ -1,0 +1,8 @@
+API_VERSION = 1;
+SERVING_VERSION = 1;
+
+FUNCTION Print
+(
+    string message[100] IN ///< message to be printed into the log.
+) = 0;
+

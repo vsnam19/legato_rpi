@@ -1,0 +1,28 @@
+username: telaf
+maxThreads: 600
+executables:
+{
+    tafVoiceCallConsoleApp = ( Component )
+}
+
+processes:
+{
+    envVars:
+    {
+        LE_LOG_LEVEL = DEBUG
+    }
+
+    run:
+    {
+        ( tafVoiceCallConsoleApp )
+    }
+}
+
+start: manual
+sandboxed: false
+
+bindings:
+{
+    tafVoiceCallConsoleApp.Component.taf_voicecall -> tafVoiceCallSvc.taf_voicecall
+}
+

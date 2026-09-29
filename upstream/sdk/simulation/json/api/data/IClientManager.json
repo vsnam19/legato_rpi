@@ -1,0 +1,13 @@
+{
+    "IClientManager": {
+        "IsSubsystemReady": "SERVICE_AVAILABLE",
+        "IsSubsystemReadyDelay": 400,
+        "DefaultCallbackDelay" : 400,
+        "getDeviceDataUsageStats": {
+            "error": "SUCCESS"
+        },
+        "resetDataUsageStats": {
+            "error": "SUCCESS"
+        }
+    }
+}

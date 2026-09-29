@@ -1,0 +1,56 @@
+provides:
+{
+    api:
+    {
+        taf_locGnss.api
+        taf_locPos.api
+        taf_locPosCtrl.api
+    }
+}
+
+
+ldflags:
+{
+    -L$TELAF_DEFAULT_PA_LIB_DIR/lib
+}
+
+requires:
+{
+    api:
+    {
+    #if ${LE_CONFIG_ENABLE_CONFIG_TREE} = y
+        le_cfg.api
+    #endif
+    }
+
+    component:
+    {
+        $LEGATO_ROOT/components/watchdogChain
+    }
+
+    lib:
+    {
+        libComponent_taf_pa_location.so
+        libComponent_taf_pa_locationDef.so
+    }
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+    -I$LEGATO_ROOT/components/cfgEntries
+    -I$TELAF_ROOT/include
+    -I$TELAF_PA_DEFAULT/include
+}
+
+cflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+}
+
+sources:
+{
+    tafGnssImpl.cpp
+    tafPosImpl.cpp
+    tafLocationSvc.cpp
+}

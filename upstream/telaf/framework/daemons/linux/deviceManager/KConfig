@@ -1,0 +1,10 @@
+#
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+#
+
+config VHAL_DRIVER_DIR
+  string "VHAL driver directory"
+  default "/legato/systems/current/modules/"
+  ---help---
+  Directory to store vendor-developed drivers, deviceManger will scan and install drivers from this.

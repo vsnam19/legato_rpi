@@ -1,0 +1,61 @@
+provides:
+{
+    api:
+    {
+        taf_net.api
+    }
+}
+
+requires:
+{
+    api:
+    {
+        taf_dcs.api
+        taf_pm.api
+
+    }
+
+    lib:
+    {
+        libComponent_taf_pa_net.so
+        libComponent_taf_pa_netDef.so
+    }
+
+    component:
+    {
+        $LEGATO_ROOT/components/watchdogChain
+    }
+
+}
+
+cxxflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+    -I$TELAF_ROOT/include
+    -I$TELAF_PA_DEFAULT/include
+    -I$TELAF_PA_DEFAULT/include/taf_pa_net
+    -std=c++17
+}
+
+cflags:
+{
+    -I$LEGATO_ROOT/components/watchdogChain
+}
+
+ldflags:
+{
+    -L$TELAF_DEFAULT_PA_LIB_DIR/lib
+}
+
+sources:
+{
+    tafNetworkImpl.cpp
+    tafNetworkSvc.cpp
+    tafRoutingDns.cpp
+    tafNatImpl.cpp
+    tafVlanImpl.cpp
+    tafL2tpImpl.cpp
+    tafSocksImpl.cpp
+    tafGsbImpl.cpp
+}
+

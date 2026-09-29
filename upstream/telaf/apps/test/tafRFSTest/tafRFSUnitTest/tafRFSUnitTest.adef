@@ -1,0 +1,22 @@
+start: manual
+sandboxed: false
+
+
+executables:
+{
+    tafRFSUnitTest = ( tafRFSUnitTest )
+}
+
+processes:
+{
+    run:
+    {
+        ( tafRFSUnitTest )
+    }
+}
+
+// Add SELinux module
+components:
+{
+//    $TELAF_ROOT/security/selinux/sepolicy/test/tafRFSUnitTest/component
+}

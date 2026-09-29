@@ -1,0 +1,20 @@
+sources:
+{
+    tafPiDidStore.c
+}
+
+requires:
+{
+    api:
+    {
+        le_cfg.api
+    }
+}
+
+cflags:
+{
+    -DFRAMEWORK_WDOG_NAME=DevManagerWdog
+    -I $TELAF_ROOT/include
+    -I $TELAF_ROOT/include/plugin
+    -I $LEGATO_ROOT/framework/liblegato
+}

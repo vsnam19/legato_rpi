@@ -1,0 +1,28 @@
+{
+    "ICryptoManager": {
+        "generateKey": {
+            "error" : "SUCCESS"
+        },
+        "importKey": {
+            "error" : "SUCCESS"
+        },
+        "exportKey": {
+            "error" : "SUCCESS"
+        },
+        "upgradeKey": {
+            "error" : "SUCCESS"
+        },
+        "signData": {
+            "error" : "SUCCESS"
+        },
+        "verifyData": {
+            "error" : "SUCCESS"
+        },
+        "encryptData": {
+            "error" : "SUCCESS"
+        },
+        "decryptData": {
+            "error" : "SUCCESS"
+        }
+    }
+}

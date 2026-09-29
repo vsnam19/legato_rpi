@@ -1,0 +1,25 @@
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+policy_module(tafRemoteSimSvc, 1.0)
+
+# Framework definition for telaf
+type telaf_tafRemoteSimSvc_exec_t;
+files_type(telaf_tafRemoteSimSvc_exec_t);
+
+type telaf_tafRemoteSimSvc_t;
+
+type telaf_tafRemoteSimSvc_data_t;
+files_type(telaf_tafRemoteSimSvc_data_t);
+
+init_telaf_app_domain(telaf_tafRemoteSimSvc_t,telaf_tafRemoteSimSvc_exec_t)
+
+# Allow update daemon to install/uninstall this service
+telaf_admin_manage_all_files_perms(telaf_tafRemoteSimSvc_data_t)
+telaf_admin_manage_all_files_perms(telaf_tafRemoteSimSvc_exec_t)
+
+# Getting telux remote sim information
+ifdef(`sa525m',`
+    telux_allow_tel_remote_sim(telaf_tafRemoteSimSvc_t)
+    telux_allow_tel_sap(telaf_tafRemoteSimSvc_t)
+')

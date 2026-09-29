@@ -1,0 +1,45 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+IO_all: map(include('io'), key=hexa())
+
+---
+io:
+  identifier: hexa()
+  mnemonic: mnemonic()
+  description: str(max=2048, required=False)
+  category: enum("Ecall",required=False)
+  minimum_execution_time: int(min=0, max=60, required=False)
+  maximum_execution_time: int(min=0, max=60, required=False)
+  execution_conditions: str(matches='^([\d\w\W\s\(\)\.=]+)$',max=200)
+  diagnostic_session: map(include('io_diagnostic_sub_session'),key=str(),required=False)
+  access:
+    session: list(enum('default_session', 'programming_session', 'extended_diagnostic_session', 'vehicle_manufacturer_specific_session', 'fota_session', 'system_supplier_specific_session'), required=False)
+    security_type: hexa(required=False)
+    security_level: list(str(),required=False)
+  io_role: list(enum('b1','b2','b3','b4','b5','b6'),required=False)
+  enable_condition: list(str(), required=False)
+  request:
+    control_option_record: include('io_control_option_record_item')
+    control_enable_mask_record: str(matches='^([\d\w\W\s\(\)\.=]+)$', required=False)
+  negative_response:
+    nrc: list(hexa(), required=False)
+  functional_specification: str(max=200, required=False)
+  functional_requirement: str(max=200, required=False)
+  feature: str(matches='^[_\w\d-]+$', required=False)
+
+---
+io_control_option_record_item:
+  io_control_parameter: list(hexa())
+  control_state: mnemonic(required=False)
+  did_size: int()
+
+---
+io_diagnostic_sub_session: map(include('io_diagnostic_sub_session_level'),key=enum('R','W','IO'),required=False)
+
+---
+io_diagnostic_sub_session_level:
+  security: bool(required=False)
+  security_level: list(str(),required=False)
+---
+

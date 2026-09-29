@@ -1,0 +1,269 @@
+#!/bin/bash
+
+copyright="
+Copyright (C) Sierra Wireless Inc.
+"
+
+. "$(dirname "${BASH_SOURCE[0]}")/shlib"
+
+help_short_desc="create Legato system tree in read-only"
+
+help_usage=(
+"STAGING_DIR OUTPUT_DIR [DISABLE_SMACK]"
+)
+
+help_long_description=(
+"Create Legato read-only system tree from a regular system tree"
+)
+
+CheckForHelp $@
+
+STAGING_DIR=$1
+OUTPUT_DIR=$2
+DISABLE_SMACK=0
+
+if [ -z "$STAGING_DIR" ]; then
+    echo "Staging directory '$STAGING_DIR' not provided"
+elif [ ! -e "$STAGING_DIR" ]; then
+    # Is the argument provided a target?
+    if [ -e "build/$STAGING_DIR/staging" ]; then
+        echo "DEPRECATED: $0 doesn't take the target as a parameter anymore."
+        TARGET=$STAGING_DIR
+        STAGING_DIR="build/$TARGET/staging"
+        OUTPUT_DIR="build/$TARGET/readOnlyStaging"
+        DISABLE_SMACK=${2:-0}
+    else
+        ExitWithError "Directory '$STAGING_DIR' does not exist."
+    fi
+elif [ -z "$OUTPUT_DIR" ]; then
+    ExitWithError "Output directory not provided."
+else
+    DISABLE_SMACK=${3:-0}
+fi
+
+# Remove older read-only staging tree
+rm -rf "$OUTPUT_DIR"
+
+# Handle smack
+mkdir -p "${OUTPUT_DIR}/systems/current"
+if [ $DISABLE_SMACK -eq 0 ]; then
+    mkdir -p "${OUTPUT_DIR}/smack"
+fi
+
+# Add a file 'read-only' to mark the staging tree as read-only
+# This is used in supervisor and config tree to perform some specific
+# actions
+touch "${OUTPUT_DIR}/systems/current/read-only"
+
+# Copy the staging tree into the read-only
+cp -a "${STAGING_DIR}/system/." "${OUTPUT_DIR}/systems/current/"
+
+# Mark the system 0 as good
+echo -n "good" >"${OUTPUT_DIR}/systems/current/status"
+echo -n "0" >"${OUTPUT_DIR}/systems/current/index"
+
+# Copy the start script and apps stuff into the read-only tree
+cp -a "${STAGING_DIR}/start" "${STAGING_DIR}/apps/" "${OUTPUT_DIR}/"
+
+# Build the final config-tree for
+sysConfigFile="${OUTPUT_DIR}/systems/current/config/system.scissors"
+appsConfigFile="${OUTPUT_DIR}/systems/current/config/apps.cfg"
+usersConfigFile="${OUTPUT_DIR}/systems/current/config/users.cfg"
+modsConfigFile="${OUTPUT_DIR}/systems/current/config/modules.cfg"
+frameworkConfigFile="${OUTPUT_DIR}/systems/current/config/framework.cfg"
+
+# Construct the system config tree from the users.cfg and apps.cfg files.
+echo '{ "users" ' > $sysConfigFile
+cat $usersConfigFile >> $sysConfigFile
+echo ' "apps" ' >> $sysConfigFile
+cat $appsConfigFile >> $sysConfigFile
+echo ' "modules" ' >> $sysConfigFile
+cat $modsConfigFile >> $sysConfigFile
+echo ' "framework" ' >> $sysConfigFile
+cat $frameworkConfigFile >> $sysConfigFile
+echo ' }' >> $sysConfigFile
+
+# Remove the users.cfg apps.cfg and modules.cfg files so the Update Daemon won't
+# waste time importing them at boot time.
+rm $appsConfigFile $usersConfigFile $modsConfigFile
+
+# Mark the startSystem executable file as set-user-ID-root
+chmod a+s "${OUTPUT_DIR}/systems/current/bin/startSystem"
+
+# Make the directory and deploy the apps
+mkdir "${OUTPUT_DIR}/systems/current/appsWriteable"
+cd "${OUTPUT_DIR}/systems/current/appsWriteable"
+
+# Make the bin and lib directory
+for f in ../apps/*; do
+# Give permission to non-root process so that it can generate coredump file in their
+# root working directory if getting crashed.
+    mkdir -m 0777 `basename $f` `basename $f`/bin `basename $f`/lib
+done
+
+# Files used by sandbox APPs
+SBOX_FILES="
+    /lib/liblegato.so
+    /lib/ld-linux-aarch64.so.1
+    /lib/libc.so.6
+    /lib/libpthread.so.0
+    /lib/librt.so.1
+    /lib/libdl.so.2
+    /lib/libgcc_s.so.1
+    /lib/libm.so.6
+    /lib/libstdc++.so.6
+    /lib/libdlt.so.2
+    /tmp/legato/serviceDirectoryServer
+    /tmp/legato/serviceDirectoryClient"
+
+# File nodes for sandbox APPs
+DEV_NODE="
+   /dev/null
+   /dev/zero
+   /dev/log
+   /dev/urandom"
+
+# Function to get specific sections from root.cfg file
+GetSection() {
+  local section_src="$1"
+  local section_name="$2"
+  echo "$section_src" | awk -v section="$section_name" '
+    $0 ~ section {flag=1; next}
+    flag {
+      if (/{/) depth++
+      if (/}/) depth--
+      if (depth == 0) flag=0
+      if (flag) print
+    }
+  '
+}
+
+# Perform some move of file and make useful links
+for f in *; do ln=`ls -l ../apps/$f | sed 's,^.*/legato/,,'`; echo $f $ln;
+
+   for d in read-only writeable; do
+      if [ -d ../../../$ln/$d ]; then
+
+        mkdir -p `basename $f`
+        for dd in `cd ../../../$ln/$d; find -type d`; do
+
+           mkdir -p `basename $f`/$dd
+           for ff in ../../../$ln/$d/$dd/*; do
+
+              if [ -f $ff ]; then
+                 mv $ff `basename $f`/$dd/. &&
+                 ln -s /legato/systems/current/appsWriteable/`basename $f`/$dd/`basename $ff` \
+                       ../../../$ln/$d/$dd/`basename $ff`
+
+                 # lnk scissors file to 'current/config/' as RO config tree and rename to ".paper"
+                 # The TelAF framework will check and load this RO config tree file ".paper".
+                 if [[ "$ff" == *.scissors ]]; then
+                     ln -s /legato/systems/current/appsWriteable/`basename $f`/$dd/`basename $ff` \
+                           "../config/$(basename "${ff%.*}.paper")"
+                     if [ $? -ne 0 ]; then
+                         echo "Error: Config tree name '`basename $ff`' is duplicated with other"
+                         exit 1
+                     fi
+                 fi
+
+              fi
+           done
+        done
+      fi
+   done
+
+   # Prepare requires links and devices for APPs in read-only image
+   CURR_PATH=`pwd`
+   ROOT_CFG="$CURR_PATH/../../../$ln/root.cfg"
+   if [ -e "$ROOT_CFG" ]; then
+      app_name=`basename $f`
+
+      # Extract the "requires" section
+      requires=$(cat $ROOT_CFG | awk '
+        /"requires"/ {flag=1; next}
+        flag {
+          if (/{/) depth++
+          if (/}/) depth--
+          if (depth == 0) flag=0
+          if (flag) print
+        }
+      ')
+
+      # Extract "files", "dirs", and "devices" sections
+      files_section=$(GetSection "$requires" '"files"')
+      dirs_section=$(GetSection "$requires" '"dirs"')
+      devices_section=$(GetSection "$requires" '"devices"')
+
+      # Process the "files" and "dirs" section line by line
+      while IFS= read -r line; do
+        if [[ $line == *'"src"'* ]]; then
+          src=$(echo "$line" | grep -oP '(?<="src" ")[^"]*')
+        elif [[ $line == *'"dest"'* ]]; then
+          dest=$(echo "$line" | grep -oP '(?<="dest" ")[^"]*')
+          mkdir -p $(dirname "$app_name$dest")
+          ln -s "$src" "$app_name$dest"
+        fi
+      done <<< "$files_section$dirs_section"
+
+      # Prepare empty file for sandboxed APPs to bind mount in read-only image
+      if ! grep -q '"sandboxed" !f' "$ROOT_CFG"; then
+
+          echo sandboxed app: $app_name
+          mkdir -p $app_name/dev/
+          mkdir -p $app_name/tmp/legato/
+
+          # Pre-create empty files for sandbox APPs for read only system
+          echo "$SBOX_FILES" | while read -r item; do
+              if [ -n "$item" ]; then
+                  touch "$app_name$item"
+              fi
+          done
+          # Pre-create the file nodes for sandbox APPs for read only system
+          echo "$DEV_NODE" | while read -r item; do
+              if [ -n "$item" ]; then
+                  touch "$app_name$item"
+              fi
+          done
+
+          # Process the "devices" section for sandboxed apps
+          while IFS= read -r line; do
+            if [[ $line == *'"dest"'* ]]; then
+              dest=$(echo "$line" | grep -oP '(?<="dest" ")[^"]*')
+
+              # Check if the path ends with a "/"
+              if [[ "$dest" == */ ]]; then
+                  dir_path="$dest"
+                  file_name=""
+              else
+                  dir_path=$(dirname "$dest")
+                  file_name=$(basename "$dest")
+              fi
+              mkdir -p "$app_name$dir_path"
+              if [[ -n "$file_name" ]]; then
+                  touch "$app_name$dest"
+              fi
+
+            fi
+          done <<< "$devices_section"
+      fi # "sandboxed"
+
+   fi
+
+done
+
+# Deploy all libs .so into /legato/systems/current/lib if SMACK is disabled
+if [ $DISABLE_SMACK -eq 1 ]; then
+    for libpath in `find -L . -name "libComponent*.so"`; do
+        lib=`basename $libpath`
+        if [ ! -e ../lib/$lib ]; then
+            ln -s /legato/systems/current/appsWriteable/$libpath ../lib/$lib 2>/dev/null
+        fi
+    done
+fi
+
+# Add some directory and links for powerMgr tools
+mkdir -p powerMgr/sys/power
+ln -s /sys/power/wake_lock powerMgr/sys/power
+ln -s /sys/power/wake_unlock powerMgr/sys/power
+
+exit 0

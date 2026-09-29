@@ -1,0 +1,33 @@
+username: telaf
+maxThreads: 600
+sandboxed: false
+
+executables:
+{
+    tafAudioConsoleApp =
+            ($TELAF_ROOT/apps/test/ConsoleApp/tafAudioApp/tafAudioConsoleAppComp)
+}
+
+start: manual
+
+processes:
+{
+    run:
+    {
+        (tafAudioConsoleApp)
+    }
+
+    faultAction: stopApp
+
+    #if ${LE_CONFIG_SERVICES_WATCHDOG} = y
+        maxWatchdogTimeout: 100000
+    #else
+        watchdogTimeout: never
+    #endif
+}
+
+bindings:
+{
+    tafAudioConsoleApp.tafAudioConsoleAppComp.taf_audio -> tafAudioSvc.taf_audio
+    tafAudioConsoleApp.tafAudioConsoleAppComp.taf_audioVendor -> tafAudioSvc.taf_audioVendor
+}

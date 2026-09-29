@@ -1,0 +1,62 @@
+sources:
+{
+    tafSomeipGWSvc.cpp
+    tafSomeipSvrImpl.cpp
+    tafSomeipClntImpl.cpp
+}
+
+cxxflags:
+{
+    -I$TELAF_ROOT/include
+    -I${LEGATO_BUILD}/framework/libjansson/include
+    -Wno-error=deprecated-declarations
+    -Wno-deprecated-declarations
+}
+
+requires:
+{
+}
+
+provides:
+{
+    api:
+    {
+        someipGW/taf_someipSvr.api
+        someipGW/taf_someipClnt.api
+    }
+}
+
+ldflags:
+{
+    -ljansson
+    -lvsomeip3
+    -lboost_thread
+    -lboost_regex
+    -lboost_filesystem
+    -lboost_chrono
+    -lboost_atomic
+    -lboost_system
+    -lboost_log_setup
+    -lboost_log
+}
+
+bundles:
+{
+    file:
+    {
+        // Include a default vsomeip JSON config file that contains
+        // the minimal configurations that vsomeip requires. Shall
+        // be modified accordingly based on target device's unicast
+        // and multicast addresses.
+    #if ${LE_CONFIG_FLAVOR_LXC} = y
+        [rw] tafSomeipGWSvcLXC.json  /tafSomeipGWSvc.json
+    #elif ${MULTI_ROUTING_MANAGERS_TEST_DEVICE} = ""
+        [rw] tafSomeipGWSvc.json   /
+        [rw] tafSomeipGWSvc_1.json   /
+    #else
+        [rw] ${TELAF_ROOT}/apps/test/tafSomeipGWTest/multiRoutingManagersTest/config/${MULTI_ROUTING_MANAGERS_TEST_DEVICE}/tafSomeipGWSvc.json /
+        [rw] ${TELAF_ROOT}/apps/test/tafSomeipGWTest/multiRoutingManagersTest/config/${MULTI_ROUTING_MANAGERS_TEST_DEVICE}/tafSomeipGWSvc_1.json /
+        [rw] ${TELAF_ROOT}/apps/test/tafSomeipGWTest/multiRoutingManagersTest/config/${MULTI_ROUTING_MANAGERS_TEST_DEVICE}/tafSomeipGWSvc_2.json /
+    #endif
+    }
+}

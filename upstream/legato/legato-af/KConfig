@@ -1,0 +1,15 @@
+#
+# Top level configuration for Legato.
+#
+# Copyright (C) Sierra Wireless Inc.
+#
+
+mainmenu "Legato Configuration"
+
+rsource "legato.kconfig"
+rsource "$(TELAF_ROOT)/telaf.kconfig"
+
+menu "Framework Adaptor"
+depends on CUSTOM_FA
+orsource "$(LE_CONFIG_CUSTOM_FA_PATH)/KConfig"
+endmenu # end "Legato Framework Adaptor"

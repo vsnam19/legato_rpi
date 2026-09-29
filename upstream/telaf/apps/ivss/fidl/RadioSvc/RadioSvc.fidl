@@ -1,0 +1,1257 @@
+/*
+* Copyright (c) 2023-2025 Qualcomm Innovation Center, Inc. All rights reserved.
+* SPDX-License-Identifier: BSD-3-Clause-Clear
+*/
+
+package com.qualcomm.qti.telephony
+
+/**
+    @description :
+        
+            
+**/
+typeCollection RadioSvcTypes {
+    version { major 2 minor 1 }
+    
+    /**
+        @description :
+            
+        @experimental: type : uint8
+    **/
+    enumeration PhoneIdT {
+        /** Unknown Phone ID  **/
+        PHONE_ID_T_UNKNOWN = 0
+        
+        /** SIM inserted in slot 1  **/
+        PHONE_ID_T_1 = 1
+        
+        /** SIM inserted in slot 2  **/
+        PHONE_ID_T_2 = 2
+            
+    }
+    
+    /**
+        @description :
+            
+        @experimental: type : uint8
+    **/
+    enumeration TelephonyResultT {
+        /** Unknow result.  **/
+        TELEPHONY_RESULT_T_UNKNOWN = 0
+        
+        /** Successful.  **/
+        TELEPHONY_RESULT_T_OK = 1
+        
+        /** Referenced item does not exist or could not be found.  **/
+        TELEPHONY_RESULT_T_NOT_FOUND = 2
+        
+        /** An index or other value is out of range.  **/
+        TELEPHONY_RESULT_T_OUT_OF_RANGE = 3
+        
+        /** Insufficient memory is available.  **/
+        TELEPHONY_RESULT_T_NO_MEMORY = 4
+        
+        /** Current user does not have permission to perform requested action.  **/
+        TELEPHONY_RESULT_T_NOT_PERMITTED = 5
+        
+        /** Unspecified internal error.  **/
+        TELEPHONY_RESULT_T_FAULT = 6
+        
+        /** Communications error.  **/
+        TELEPHONY_RESULT_T_COMM_ERROR = 7
+        
+        /** A time-out occurred.  **/
+        TELEPHONY_RESULT_T_TIMEOUT = 8
+        
+        /** An overflow occurred or would have occurred.  **/
+        TELEPHONY_RESULT_T_OVERFLOW = 9
+        
+        /** An underflow occurred or would have occurred.  **/
+        TELEPHONY_RESULT_T_UNDERFLOW = 10
+        
+        /** Would have blocked if non-blocking behaviour was not requested.  **/
+        TELEPHONY_RESULT_T_WOULD_BLOCK = 11
+        
+        /** Would have caused a deadlock.  **/
+        TELEPHONY_RESULT_T_DEADLOCK = 12
+        
+        /** Format error.  **/
+        TELEPHONY_RESULT_T_FORMAT_ERROR = 13
+        
+        /** Duplicate entry found or operation already performed.  **/
+        TELEPHONY_RESULT_T_DUPLICATE = 14
+        
+        /** Parameter is invalid.  **/
+        TELEPHONY_RESULT_T_BAD_PARAMETER = 15
+        
+        /** The resource is closed.  **/
+        TELEPHONY_RESULT_T_CLOSED = 16
+        
+        /** The resource is busy.  **/
+        TELEPHONY_RESULT_T_BUSY = 17
+        
+        /** The underlying resource does not support this operation.  **/
+        TELEPHONY_RESULT_T_UNSUPPORTED = 18
+        
+        /** An IO operation failed.  **/
+        TELEPHONY_RESULT_T_IO_ERROR = 19
+        
+        /** Unimplemented functionality.  **/
+        TELEPHONY_RESULT_T_NOT_IMPLEMENTED = 20
+        
+        /** A transient or temporary loss of a service or resource.  **/
+        TELEPHONY_RESULT_T_UNAVAILABLE = 21
+        
+        /** The process, operation, data stream, session, etc. has stopped.  **/
+        TELEPHONY_RESULT_T_TERMINATED = 22
+        
+        /** The operation is in progress.  **/
+        TELEPHONY_RESULT_T_IN_PROGRESS = 23
+        
+        /** The operation is suspended.  **/
+        TELEPHONY_RESULT_T_SUSPENDED = 24
+        
+        /** @deprecated It is not possible to perform the requested action.  **/
+        TELEPHONY_RESULT_T_NOT_POSSIBLE = 25
+            
+    }
+    
+    /**
+        @description :
+            
+        @experimental: type : uint32
+    **/
+    enumeration RadioRatBitMaskValueT {
+        /** Unknown RAT.  **/
+        RADIO_RAT_BIT_MASK_VALUE_T_UNKNOWN = 0
+        
+        /** GSM bitmask.  **/
+        RADIO_RAT_BIT_MASK_VALUE_T_GSM = 1
+        
+        /** UMTS bitmask.  **/
+        RADIO_RAT_BIT_MASK_VALUE_T_UMTS = 2
+        
+        /** CDMA bitmask.  **/
+        RADIO_RAT_BIT_MASK_VALUE_T_CDMA = 4
+        
+        /** TDSCDMA bitmask.  **/
+        RADIO_RAT_BIT_MASK_VALUE_T_TDSCDMA = 8
+        
+        /** LTE bitmask.  **/
+        RADIO_RAT_BIT_MASK_VALUE_T_LTE = 16
+        
+        /** NR5G bitmask.  **/
+        RADIO_RAT_BIT_MASK_VALUE_T_NR5G = 32
+            
+    }
+    
+    /**
+        @description :
+            
+        @experimental: type : uint8
+    **/
+    enumeration RadioRatT {
+        /** Unknown RAT.  **/
+        RADIO_RAT_T_UNKNOWN = 0
+        
+        /** GSM - Global System for Mobile communications.  **/
+        RADIO_RAT_T_GSM = 1
+        
+        /** GSM GPRS - General Packet Radio Service.  **/
+        RADIO_RAT_T_GPRS = 2
+        
+        /** GSM EDGE - Enhanced Data rate for GSM Evolution.  **/
+        RADIO_RAT_T_EDGE = 3
+        
+        /** CDMA EHRPD - Evolved High Rate Package Data.  **/
+        RADIO_RAT_T_EHRPD = 4
+        
+        /** UMTS - Universal Mobile Telecommunications System.  **/
+        RADIO_RAT_T_UMTS = 5
+        
+        /** UMTS HSPA - High Speed Packet Access.  **/
+        RADIO_RAT_T_HSPA = 6
+        
+        /** UMTS HSDPA - High Speed Downlink Packet Access.  **/
+        RADIO_RAT_T_HSDPA = 7
+        
+        /** UMTS HSUPA - High Speed Uplink Packet Access.  **/
+        RADIO_RAT_T_HSUPA = 8
+        
+        /** UMTS HSPAP - HSPA+.  **/
+        RADIO_RAT_T_HSPAP = 9
+        
+        /** TDSCDMA - Time Division-Synchronous Code Division Multiple Access.  **/
+        RADIO_RAT_T_TDSCDMA = 10
+        
+        /** LTE - Long Term Evolution.  **/
+        RADIO_RAT_T_LTE = 11
+        
+        /** LTE CA - LTE Carrier Aggregation.  **/
+        RADIO_RAT_T_LTE_CA = 12
+        
+        /** NR5G - New Radio 5G.  **/
+        RADIO_RAT_T_NR5G = 13
+            
+    }
+    
+    /**
+        @description :
+            
+        @experimental: type : uint8
+    **/
+    enumeration RadioNetRegStateT {
+        /** Unknown registration state.  **/
+        RADIO_NET_REG_STATE_T_UNKNOWN = 0
+        
+        /** Not registered and not searching.  **/
+        RADIO_NET_REG_STATE_T_NONE = 1
+        
+        /** Home registered.  **/
+        RADIO_NET_REG_STATE_T_HOME = 2
+        
+        /** Not registered and searching.  **/
+        RADIO_NET_REG_STATE_T_SEARCHING = 3
+        
+        /** Registration denied.  **/
+        RADIO_NET_REG_STATE_T_DENIED = 4
+        
+        /** Roaming registered.  **/
+        RADIO_NET_REG_STATE_T_ROAMING = 5
+        
+        /** Not registered and not searching.  **/
+        RADIO_NET_REG_STATE_T_EMERGENCY_AVAILABLE = 6
+            
+    }
+    
+    /**
+        @description :
+            
+        @experimental: type : uint8
+    **/
+    enumeration RadioNrDcnrRestrictionT {
+        /** NR DCNR Status unknown.  **/
+        RADIO_NR_DCNR_RESTRICTION_T_UNKNOWN = 0
+        
+        /** NR DCNR is Restricted.  **/
+        RADIO_NR_DCNR_RESTRICTION_T_RESTRICTED = 1
+        
+        /** NR DCNR is not Restricted.  **/
+        RADIO_NR_DCNR_RESTRICTION_T_UNRESTRICTED = 2
+            
+    }
+    
+    /**
+        @description :
+            
+        @experimental: type : uint8
+    **/
+    enumeration RadioSigTypeT {
+        /** Radio signal type unknown.  **/
+        RADIO_SIG_TYPE_T_UNKNOWN = 0
+        
+        /** GSM Received Signal Strength Indicator.  **/
+        RADIO_SIG_TYPE_T_GSM_RSSI = 1
+        
+        /** UMTS Received Signal Strength Indicator.  **/
+        RADIO_SIG_TYPE_T_UMTS_RSSI = 2
+        
+        /** LTE Reference Signal Receiving Power.  **/
+        RADIO_SIG_TYPE_T_LTE_RSRP = 3
+        
+        /** NR5G Reference Signal Receiving Power.  **/
+        RADIO_SIG_TYPE_T_NR5G_RSRP = 4
+            
+    }
+    
+    /**
+        @description :
+            
+        @experimental: type : uint8
+    **/
+    enumeration RadioSigIndicationTypeT {
+        /** Report signal strength unknown.  **/
+        RADIO_SIG_INDICATION_TYPE_T_UNKNOWN = 0
+        
+        /** Report signal strength based on threshold.  **/
+        RADIO_SIG_INDICATION_TYPE_T_THRESHOLD = 1
+        
+        /** Report signal strength based on delta.  **/
+        RADIO_SIG_INDICATION_TYPE_T_DELTA = 2
+            
+    }
+    
+    /**
+        @description :
+            
+        @experimental: type : uint8
+    **/
+    enumeration ValueState {
+        VALUE_STATE_UNAVAILABLE = 0
+        
+        VALUE_STATE_VALID = 1
+        
+        VALUE_STATE_INVALID = 2
+            
+    }
+    
+    /**
+        @description :
+            
+        @experimental: type : uint8
+    **/
+    enumeration RadioStateT {
+        /** Radio state unknown.  **/
+        RADIO_STATE_T_UNKNOWN = 0
+        
+        /** Radio explictly powered off.  **/
+        RADIO_STATE_T_OFF = 1
+        
+        /** Radio unavailable.  **/
+        RADIO_STATE_T_UNAVAILABLE = 2
+        
+        /** Radio is on.  **/
+        RADIO_STATE_T_ON = 3
+            
+    }
+    
+    /**
+        @description :
+            
+        @experimental: type : uint8
+    **/
+    enumeration RadioCellInfoStatusT {
+        /** Serving Cell info unknown.  **/
+        RADIO_CELL_INFO_STATUS_T_UNKNOWN = 0
+        
+        /** Serving Cell info changed.  **/
+        RADIO_CELL_INFO_STATUS_T_SERVING_CHANGED = 1
+        
+        /** NeighborCells info changed.  **/
+        RADIO_CELL_INFO_STATUS_T_NEIGHBOR_CHANGED = 2
+        
+        /** Serving and neighbor changed.  **/
+        RADIO_CELL_INFO_STATUS_T_SERVING_AND_NEIGHBOR_CHANGED = 3
+            
+    }
+    
+        
+    
+    /**
+        @description :
+
+    **/
+    struct RadioSigStrengthIndicationT {
+        /**
+            @description : Use threshold or delta as the indication. 
+        **/
+        RadioSigIndicationTypeT type
+        
+        /**
+            @description : Lower range threshold in 0.1 dBm. 
+        **/
+        Int32 lowerRange
+        
+        /**
+            @description : Upper range threshold in 0.1 dBm. 
+        **/
+        Int32 upperRange
+        
+        /**
+            @description : Delta in uints of 0.1 dBm. 
+        **/
+        UInt16 delta
+          
+    }
+    
+    /**
+        @description :
+
+    **/
+    struct RadioSigStrengthHysteresisT {
+        /**
+            @description : True if set a hysteresis threshold, false if not. 
+        **/
+        Boolean setThreshold
+        
+        /**
+            @description : Hysteresis dBm in units of 0.1 dBm, only to specify rat. 
+        **/
+        UInt16 threshold
+        
+        /**
+            @description : True if set a hysteresis timer, false if not. 
+        **/
+        Boolean setTimer
+        
+        /**
+            @description : Hysteresis time in milliseconds, to all RATs. 
+        **/
+        UInt16 timer
+          
+    }
+    
+}
+
+/**
+    @description :
+
+**/
+interface RadioSvc {
+    version { major 2 minor 1 }
+    
+
+    /**
+        
+        @description :
+            Event to report signal strength change
+                        
+        @experimental: asil-level  : ASIL_QM
+        
+        @experimental: exclusion_time  : 500
+    **/
+    broadcast SignalStrength {
+        out {
+
+            /**
+                @description : None 
+                
+            **/
+            RadioSvcTypes.ValueState valueState
+
+            /**
+                @description : Phone ID 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+            /**
+                @description : Radio Access Technology. 
+                
+            **/
+            RadioSvcTypes.RadioRatT rat
+
+            /**
+                @description : Signal strength in dBm. 
+                
+            **/
+            Int32 ss
+
+            /**
+                @description : Reference signal receive power in dBm. 
+                
+            **/
+            Int32 rsrp
+
+        }
+    }
+    /**
+        
+        @description :
+            Event to report radio state change.
+                        
+        @experimental: asil-level  : ASIL_QM
+        
+        @experimental: exclusion_time  : 500
+    **/
+    broadcast RadioState {
+        out {
+
+            /**
+                @description : None 
+                
+            **/
+            RadioSvcTypes.ValueState valueState
+
+            /**
+                @description : Radio state 
+                
+            **/
+            RadioSvcTypes.RadioStateT radioState
+
+        }
+    }
+    /**
+        
+        @description :
+            Event to report cell info change.
+                        
+        @experimental: asil-level  : ASIL_QM
+        
+        @experimental: exclusion_time  : 500
+    **/
+    broadcast CellInfo {
+        out {
+
+            /**
+                @description : None 
+                
+            **/
+            RadioSvcTypes.ValueState valueState
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+            /**
+                @description :  Cell change enum for serving / neighbor / both. 
+                
+            **/
+            RadioSvcTypes.RadioCellInfoStatusT status
+
+        }
+    }
+   /**
+        
+        @description :
+            Event to report radio access technology change.
+                        
+        @experimental: asil-level  : ASIL_QM
+        
+        @experimental: Exclusion_time  : 500 ms
+    **/
+    broadcast RadioRat {
+        out 
+        {
+
+            /**
+                @description : None 
+                
+            **/
+            RadioSvcTypes.ValueState valueState
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+            /**
+                @description : Radio Access Technology 
+                
+            **/
+            RadioSvcTypes.RadioRatT radioRat
+
+        }
+    }
+    
+    
+        
+            
+    /**
+        @description :
+            Gets GSM signal metrics.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method GetGsmSignalMetrics {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : Received signal strength indicator in dBm, 0x7FFFFFFF is unavailable. 
+                
+            **/
+            Int32 rssi
+
+            /**
+                @description : Bit error rate, valid from 0 to 7, 0x7FFFFFFF is unavailable. 
+                
+            **/
+            UInt32 ber
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Gets UMTS signal metrics.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method GetUmtsSignalMetrics {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : Signal strength in dBm, 0x7FFFFFFF is unavailable. 
+                
+            **/
+            Int32 ss
+
+            /**
+                @description : WCDMA bit error rate, valid from 0 to 7, 0x7FFFFFFF is unavailable. 
+                
+            **/
+            UInt32 ber
+
+            /**
+                @description : Receive signal channel power in dBm, 0x7FFFFFFF is unavailable. 
+                
+            **/
+            Int32 rscp
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Gets LTE signal metrics.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method GetLteSignalMetrics {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : Signal strength in dBm, 0x7FFFFFFF is unavailable. 
+                
+            **/
+            Int32 ss
+
+            /**
+                @description : Reference signal receive quality in dB, 0x7FFFFFFF is unavailable. 
+                
+            **/
+            Int32 rsrq
+
+            /**
+                @description : Reference signal receive power in dBm, 0x7FFFFFFF is unavailable. 
+                
+            **/
+            Int32 rsrp
+
+            /**
+                @description : Signal-to-noise ratio in units of 0.1 dB, 0x7FFFFFFF is unavailable. 
+                
+            **/
+            Int32 snr
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Gets NR5G signal metrics.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method GetNr5gSignalMetrics {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : Reference Signal Receive Quality in dB, 0x7FFFFFFF is unavailable. 
+                
+            **/
+            Int32 rsrq
+
+            /**
+                @description : Reference Signal Receive Power in dBm, 0x7FFFFFFF is unavailable. 
+                
+            **/
+            Int32 rsrp
+
+            /**
+                @description : Signal-to-Noise Ratio in units of 0.1 dB, 0x7FFFFFFF is unavailable. 
+                
+            **/
+            Int32 snr
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Gets the network registration mode.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method GetRegisterMode {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : True if manual, false if automatic. 
+                
+            **/
+            Boolean isManual
+
+            /**
+                @description : MCC. 
+                
+                    
+                @experimental: max-size: 4
+                    
+                
+            **/
+            String mcc
+
+            /**
+                @description : MNC. 
+                
+                    
+                @experimental: max-size: 4
+                    
+                
+            **/
+            String mnc
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Registers to network using automatic mode.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method SetAutomaticRegisterMode {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Gets the total SIM count, maximum active SIM count, 
+            SIM maximum counts, RAT capabilities supported by hardware and SIM based on a given phone ID.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method GetHardwareConfig {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : The max number of sims supported simultaneously. 
+                
+            **/
+            UInt8 totalSimCount
+
+            /**
+                @description : The max number of sims that can be active 
+                
+            **/
+            UInt8 maxActiveSims
+
+            /**
+                @description : Device rat capability bitmask. 
+                
+            **/
+            UInt32 deviceRatCapMask
+
+            /**
+                @description : Sim rat capability bitmask. 
+                
+            **/
+            UInt32 simRatCapMask
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Gets Radio signal metrics.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method GetRatPreferences {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : Bitmask for RAT prefences. 
+                
+            **/
+            UInt32 ratMask
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Gets Radio signal metrics.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method GetCurrentNetworkName {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : Current network's long name. 
+                
+                    
+                @experimental: max-size: 100
+                    
+                
+            **/
+            String longName
+
+            /**
+                @description : Current network's short name. 
+                
+                    
+                @experimental: max-size: 100
+                    
+                
+            **/
+            String shortName
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Gets Radio signal metrics.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method GetNetRegState {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : RAT in use. 
+                
+            **/
+            RadioSvcTypes.RadioRatT rat
+
+            /**
+                @description : Cell ID. 
+                
+            **/
+            UInt32 cellId
+
+            /**
+                @description : The mobile country code. 
+                
+                    
+                @experimental: max-size: 4
+                    
+                
+            **/
+            String mcc
+
+            /**
+                @description : The mobile network code. 
+                
+                    
+                @experimental: max-size: 4
+                    
+                
+            **/
+            String mnc
+
+            /**
+                @description : Network registration state. 
+                
+            **/
+            RadioSvcTypes.RadioNetRegStateT netReg
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Gets Radio signal metrics.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method GetNrDualConnectivityStatus {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : DCNR restriction status. 
+                
+            **/
+            RadioSvcTypes.RadioNrDcnrRestrictionT statusDcnr
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Gets Radio signal metrics.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method SetSignalStrengthReportingCriteria {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+            /**
+                @description : Signal type. 
+                
+            **/
+            RadioSvcTypes.RadioSigTypeT sigType
+
+            /**
+                @description : Signal strength indication. 
+                
+            **/
+            RadioSvcTypes.RadioSigStrengthIndicationT ind
+
+            /**
+                @description : Signal strength hysteresis. 
+                
+            **/
+            RadioSvcTypes.RadioSigStrengthHysteresisT hyst
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Gets the packet switch state.
+                        
+        @experimental: asil-level  : 
+        @experimental: periodicity :
+        @experimental: exclusion-time : 
+    **/
+    method GetPacketSwitchedState {
+            
+        in {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : Packet switch state. 
+                
+            **/
+            RadioSvcTypes.RadioNetRegStateT netReg
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+            
+    /**
+        @description :
+            Gets the radio state.
+                        
+        @experimental: asil-level  : 
+        @experimental: Periodicity : ms
+        @experimental: Exclusion_time :  ms
+    **/
+    method GetRadioState {
+            
+        in 
+        {
+
+            /**
+                @description : Phone ID. 
+                
+            **/
+            RadioSvcTypes.PhoneIdT phoneId
+
+        }
+            
+            
+        out {
+
+            /**
+                @description : Radio state 
+                
+            **/
+            RadioSvcTypes.RadioStateT radioState
+
+            /**
+                @description : result code defined in Result. 
+                
+            **/
+            RadioSvcTypes.TelephonyResultT result
+
+        }
+            
+    }
+            
+        
+    
+}
