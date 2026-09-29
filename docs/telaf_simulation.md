@@ -2,36 +2,66 @@
 
 ## 1. Overview
 
-This document describes the Qualcomm Telematics Application Framework (**TelAF**) simulation environment, the architecture of the **CfgManager** service running inside it, and step-by-step instructions for container lifecycle management, building, deploying, and verifying services.
+This document describes the Qualcomm Telematics Application Framework (**TelAF**) simulation environment, the architecture of the monorepo layout, and instructions for building, deploying, and verifying services.
 
 ---
 
-## 2. Tooling and Script Reference
+## 2. Monorepo Structure
 
-All execution and developer tooling scripts are located in `scripts/`:
+The repository is organized following an automotive monorepo pattern:
 
-| Script | Purpose |
-|---|---|
-| [`scripts/run-simulation.sh`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/scripts/run-simulation.sh) | Manages TelAF simulation container lifecycle (`start`, `stop`, `status`, `shell`, `logs`). |
-| [`scripts/build.sh`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/scripts/build.sh) | Compiles `cfgManager` daemon and `cfgClient` demo using development container (`telaf_simulation_develop_2204:1.0.0`). |
-| [`scripts/deploy.sh`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/scripts/deploy.sh) | Installs update packages into runtime container (`telaf_simulation_runtime_2204_m`), restarts client, and prints live syslog. |
-| [`scripts/run-unit-tests.sh`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/scripts/run-unit-tests.sh) | Executes the 45 Google Test C++20 unit tests and generates C2 branch coverage report. |
+- **`upstream/`**: Contains clean, pristine checkouts of the Qualcomm TelAF simulation components:
+  - `telaf/`: Core framework
+  - `legato/`: Legato Application Framework (legato-af)
+  - `sdk/`: Snaptel SDK
+  - `telaf-pa/` and `telaf-pa-default/`: Platform adaptors
+  - *Note:* Upstream code is kept 100% untouched in git history.
+- **`patches/`**: Contains version-controlled `.patch` files applied to upstream components.
+  - `patches/legato/0001-ifgen-jinja2-compatibility.patch`: Modern Jinja2 compatibility for Legato `ifgen`.
+- **`vendor/custom/`**: All custom components, apps, samples, interfaces, and unit tests:
+  - `apps/cfgManager/`: CfgManager service daemon (`cfgManager.adef`, `server/Component.cdef`)
+  - `components/cfgManager/`: C++20 core business logic (core, crypto, security, storage, events)
+  - `samples/cfgClient/`: Sample client application (`cfgClient.adef`, `clientComponent/Component.cdef`)
+  - `interfaces/cfgManager.api`: RPC IPC interface specification
+  - `tests/`: Pure C++20 Google Test suite (45 tests)
+  - `vendor.sinc`: Vendor system include for TelAF integration
+  - `system_simulation.sdef`: Integrated system definition
+- **`scripts/`**: Build, test, patch, deploy, and container lifecycle scripts.
+- **`Makefile`**: Unified developer command-line interface.
 
 ---
 
-## 3. Simulation Container Lifecycle Management
+## 3. Tooling and CLI Reference
+
+| Command | Script Equivalent | Purpose |
+|---|---|---|
+| `make test` | `./scripts/run-unit-tests.sh` | Executes 45 Google Test C++20 unit tests. |
+| `make coverage` | `./scripts/run-unit-tests.sh --coverage` | Generates C2 branch coverage report. |
+| `make patch-status` | `./scripts/patch.sh status` | Checks whether upstream patches are applied. |
+| `make patch-apply` | `./scripts/patch.sh apply` | Applies all patches in `patches/` to `upstream/`. |
+| `make patch-revert` | `./scripts/patch.sh revert` | Reverts all patches, restoring pristine `upstream/`. |
+| `make build-app` | `./scripts/build.sh --standalone` | Compiles standalone `.update` packages (`cfgManager`, `cfgClient`). |
+| `make build-system` | `./scripts/build.sh --integrated` | Compiles full TelAF system image with vendor apps baked in. |
+| `make deploy` | `./scripts/deploy.sh` | Deploys update packages to runtime container and executes live demo. |
+| `make run-sim` | `./scripts/run-simulation.sh start` | Starts the TelAF simulation Docker container. |
+| `make stop-sim` | `./scripts/run-simulation.sh stop` | Stops the TelAF simulation Docker container. |
+| `make sim-status` | `./scripts/run-simulation.sh status` | Displays container and daemon status. |
+| `make sim-shell` | `./scripts/run-simulation.sh shell` | Opens bash shell in runtime container. |
+
+---
+
+## 4. Simulation Container Lifecycle Management
 
 The simulation runs in a dedicated Docker runtime container (`telaf_simulation_runtime_2204_m`).
 
-### 3.1 Start Simulation
+### 4.1 Start Simulation
 ```bash
-./scripts/run-simulation.sh start
+make run-sim
 ```
 
-### 3.2 Check Status & Version
-Verify that the TelAF framework daemons are active:
+### 4.2 Check Status & Version
 ```bash
-./scripts/run-simulation.sh status
+make sim-status
 ```
 
 Output:
@@ -47,101 +77,58 @@ TelAF Systems were installed
 TelAF framework is running
 ```
 
-### 3.3 Enter Container Shell
-```bash
-./scripts/run-simulation.sh shell
-```
-
-### 3.4 View Live System Logs
-```bash
-./scripts/run-simulation.sh logs
-```
-
-### 3.5 Stop Simulation
-```bash
-./scripts/run-simulation.sh stop
-```
-
 ---
 
-## 4. Developing & Deploying CfgManager on TelAF Simulation
+## 5. Developing & Deploying CfgManager (C++20)
 
-### 4.1 Architecture Highlights
+### 5.1 Architecture Highlights
 1. **C++20 Modern Service**:
    - Implemented with `-std=c++20`, using modern features, structured bindings, `std::span`, and smart pointers.
    - Built with `-static-libstdc++` and `-static-libgcc` in `Component.cdef` to guarantee runtime symbol compatibility inside Ubuntu 22.04.
-2. **TelAF RPC Interface Specification (`interfaces/cfgManager.api`)**:
-   - TelAF IPC code generator (`ifgen`) requires explicit RPC message identifiers:
+2. **TelAF RPC Interface Specification (`vendor/custom/interfaces/cfgManager.api`)**:
+   - Explicit RPC message identifiers:
      - `SetString(...) = 0;`
      - `GetString(...) = 1;`
      - `SetBinary(...) = 2;`
      - `GetBinary(...) = 3;`
      - `Delete(...) = 4;`
      - `EVENT Change(...) = (5, 6);`
-3. **TelAF System Service Domain Binding**:
-   - Core daemons (`configTree`, `logDaemon`) execute under the `tafcore` security domain.
-   - In [`apps/cfgManager/cfgManager.adef`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/apps/cfgManager/cfgManager.adef), IPC is bound to:
-     ```text
-     bindings: {
-         cfgManager.server.le_cfg -> <tafcore>.le_cfg
-     }
-     ```
-4. **Security Provider HAL with OP-TEE Fallback**:
-   - Evaluates `/dev/tee0` device availability and tests active key derivation via [`ISecurityProvider::GetMasterKey()`](file:///home/namvs/Workspaces/projects/linux/legato_rpi/components/cfgManager/security/src/securityProviderFactory.cpp).
-   - In container simulation environments where OP-TEE hardware supplicants are not running, the factory gracefully falls back to `SimulatedEnclaveProvider`, guaranteeing 100% operational availability while preserving hardware security boundaries on real target hardware.
-5. **Path Abstraction via Composite `cfgId` (32-bit bitfield)**:
+3. **Security Provider HAL with OP-TEE Fallback**:
+   - Evaluates `/dev/tee0` device availability and tests active key derivation via `ISecurityProvider::GetMasterKey()`.
+   - In container simulation environments where OP-TEE hardware supplicants are not running, the factory gracefully falls back to `SimulatedEnclaveProvider`.
+4. **Path Abstraction via Composite `cfgId` (32-bit bitfield)**:
    - Consumer applications interact only via 32-bit `cfgId` (`[Subsystem 8b][Category 8b][Flags 8b][KeyId 8b]`).
    - Consumer never learns internal filesystem or configTree tree hierarchy paths.
-6. **Data Classification**:
+5. **Data Classification**:
    - **RawData**: Stored directly in `configTree`.
    - **SensitiveData**: Encrypted with AES-256-GCM with per-entry random 96-bit IV and 128-bit authentication tag before writing to `configTree`.
    - **SecureData**: Stored directly in secure hardware enclave / TrustZone storage.
-7. **Pub/Sub Notifications**:
+6. **Pub/Sub Notifications**:
    - Subscribers register for change callbacks on specific `cfgId`s or subsystem masks using Legato event loop.
 
 ---
 
-### 4.2 Build Instructions
-Both `cfgManager` and `cfgClient` are compiled inside the TelAF simulation development Docker image (`telaf_simulation_develop_2204:1.0.0`) to match target GLIBC and compiler requirements:
-```bash
-./scripts/build.sh
-```
-This generates:
-- `apps/cfgManager/cfgManager.simulation.update`
-- `samples/cfgClient/cfgClient.simulation.update`
+## 6. End-to-End Verification Evidence
 
----
-
-### 4.3 Deployment & Verification Instructions
-Deploy the packages into the running TelAF simulation container and execute the verification sequence:
-```bash
-./scripts/deploy.sh
-```
-
----
-
-### 4.4 End-to-End Execution Evidence
-Upon deployment, `cfgClient` connects to `cfgManager` over TelAF IPC and executes full functional validation:
 ```text
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | supervisor[219]/supervisor T=main | proc.c proc_Start() 1594 | Starting process 'cfgClient' with pid 152725
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 19 | =================================================================
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 20 |  CfgManager Sample Client Application Started (C++20)
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 21 | =================================================================
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 29 | Target cfgIds: Raw=0x01020001, Sensitive=0x02030002, Secure=0x04030003, Bin=0x02040004
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 33 | ==> Subscribing to change events for Raw cfgId 0x01020001...
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 36 | Successfully registered change handler ref 0xcb
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 42 | ==> Writing RawData string...
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 49 | [RawData Result] Successfully read: 'rpi5-edge-gateway.local'
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 52 | ==> Writing SensitiveData (AES-256-GCM)...
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 59 | [SensitiveData Result] Decrypted transparently: 'M4st3r_P@ssw0rd_K3y#2026!'
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 62 | ==> Writing SecureData (TrustZone Secure Storage)...
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 69 | [SecureData Result] Retrieved from TrustZone: 'HW-ROOT-OF-TRUST-TOKEN-994821'
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 72 | ==> Writing Binary SensitiveData blob...
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 88 | [Binary Result] Retrieved 9 bytes: [ 0x10 0x20 0x30 0x40 0x50 0xDE 0xAD 0xBE 0xEF ]
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 91 | ==> Updating RawData to trigger Pub/Sub change notification...
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 95 | =================================================================
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 96 |  CfgManager Sample Client Demo Complete - ALL CHECKS PASSED!
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 97 | =================================================================
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp OnConfigChanged() 13 | >>> [CLIENT EVENT] Configuration changed: cfgId=0x01020001, Value='rpi5-edge-gateway.local'
-Sep 29 08:54:30 simulation user.info TelAF:  INFO | cfgClient[152725]/clientComponent T=main | client.cpp OnConfigChanged() 13 | >>> [CLIENT EVENT] Configuration changed: cfgId=0x01020001, Value='rpi5-edge-gateway-RECONFIGURED.local'
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 19 | =================================================================
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 20 |  CfgManager Sample Client Application Started (C++20)
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 21 | =================================================================
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 29 | Target cfgIds: Raw=0x01020001, Sensitive=0x02030002, Secure=0x04030003, Bin=0x02040004
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 33 | ==> Subscribing to change events for Raw cfgId 0x01020001...
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 36 | Successfully registered change handler ref 0xf5
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 42 | ==> Writing RawData string...
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 49 | [RawData Result] Successfully read: 'rpi5-edge-gateway.local'
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 52 | ==> Writing SensitiveData (AES-256-GCM)...
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 59 | [SensitiveData Result] Decrypted transparently: 'M4st3r_P@ssw0rd_K3y#2026!'
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 62 | ==> Writing SecureData (TrustZone Secure Storage)...
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 69 | [SecureData Result] Retrieved from TrustZone: 'HW-ROOT-OF-TRUST-TOKEN-994821'
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 72 | ==> Writing Binary SensitiveData blob...
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 88 | [Binary Result] Retrieved 9 bytes: [ 0x10 0x20 0x30 0x40 0x50 0xDE 0xAD 0xBE 0xEF ]
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 91 | ==> Updating RawData to trigger Pub/Sub change notification...
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 95 | =================================================================
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 96 |  CfgManager Sample Client Demo Complete - ALL CHECKS PASSED!
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp _clientComponent_COMPONENT_INIT() 97 | =================================================================
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp OnConfigChanged() 13 | >>> [CLIENT EVENT] Configuration changed: cfgId=0x01020001, Value='rpi5-edge-gateway.local'
+simulation user.info TelAF:  INFO | cfgClient[152988]/clientComponent T=main | client.cpp OnConfigChanged() 13 | >>> [CLIENT EVENT] Configuration changed: cfgId=0x01020001, Value='rpi5-edge-gateway-RECONFIGURED.local'
 ```

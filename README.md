@@ -1,11 +1,12 @@
-# Qualcomm TelAF CfgManager Service (C++20) - Simulation Environment
+# Qualcomm TelAF & Vendor Monorepo (C++20) - Simulation Environment
 
 [![Platform](https://img.shields.io/badge/Platform-Qualcomm%20TelAF%20Simulation-blue.svg)](#)
 [![Standard](https://img.shields.io/badge/C%2B%2B-20-purple.svg)](#)
 [![Tests](https://img.shields.io/badge/Tests-Google%20Test%20(45%2F45%20PASS)-brightgreen.svg)](#)
 [![Security](https://img.shields.io/badge/Security-TrustZone%20%7C%20AES--256--GCM-orange.svg)](#)
+[![Architecture](https://img.shields.io/badge/Architecture-Automotive%20Vendor%20Monorepo-success.svg)](#)
 
-A modern **C++20** Configuration Management Service (`CfgManager`) running on the **Qualcomm Telematics Application Framework (TelAF) Simulation** environment.
+A modern **C++20** automotive-grade monorepo containing pristine **Qualcomm Telematics Application Framework (TelAF)** simulation sources in `upstream/`, managed patch sets in `patches/`, and custom configuration management service (`CfgManager`) in `vendor/custom/`.
 
 ---
 
@@ -13,125 +14,149 @@ A modern **C++20** Configuration Management Service (`CfgManager`) running on th
 
 ```mermaid
 flowchart TD
-    subgraph ClientLayer["Consumer Applications"]
-        ClientApp["cfgClient (Sample Consumer)"]
+    subgraph UpstreamLayer["Pristine Upstream (upstream/)"]
+        TelAF["TelAF Core Framework"]
+        Legato["Legato AF (liblegato, daemons, tools)"]
+        SDK["Snaptel SDK"]
+        PA["Platform Adaptor (telaf-pa)"]
     end
 
-    subgraph ServiceLayer["Legato / TelAF Daemon Services"]
-        CfgMgr["cfgManager Daemon (C++20)"]
+    subgraph PatchLayer["Upstream Patches (patches/)"]
+        IfgenPatch["0001-ifgen-jinja2-compatibility.patch"]
+        PatchMgr["scripts/patch.sh (apply | revert | status)"]
+    end
+
+    subgraph VendorLayer["Vendor Isolation (vendor/custom/)"]
+        CfgMgr["cfgManager Service Daemon (C++20)"]
+        CfgClient["cfgClient Sample App (C++20)"]
         Router["CfgRouter (32-bit cfgId Path Mapper)"]
         Crypto["CryptoEngine (AES-256-GCM)"]
         SecHal["SecurityProvider HAL (TrustZone / Enclave)"]
         EvtDisp["EventDispatcher (Pub/Sub Notifications)"]
         Backends["Config Backend (configTree)"]
+        Sinc["vendor.sinc / system_simulation.sdef"]
     end
 
-    subgraph SystemLayer["TelAF Platform Services"]
-        TafCfg["<tafcore>.le_cfg (configTree Daemon)"]
-        Sdir["ServiceDirectory (IPC Router)"]
+    subgraph Toolchain["Dual-Mode Build Toolchain (scripts/ / Makefile)"]
+        Standalone["Standalone Mode (mkapp -> .update)"]
+        Integrated["Integrated System Mode (mksys -> system.update)"]
     end
 
-    ClientApp -- "cfgManager.api (RPC ID 0-6)" --> CfgMgr
-    CfgMgr --> Router
-    Router --> Crypto
-    Router --> SecHal
-    Router --> EvtDisp
-    Router --> Backends
-    Backends -- "IPC Binding" --> TafCfg
-    CfgMgr -. "Advertises" .-> Sdir
+    PatchMgr -. "Applies clean patches" .-> UpstreamLayer
+    VendorLayer --> Toolchain
+    UpstreamLayer --> Toolchain
 ```
 
 ---
 
-## Features
+## Key Features
 
+- **Automotive Monorepo Structure:** 
+  - `upstream/`: 100% pristine Qualcomm TelAF simulation source tree (no in-tree modifications).
+  - `patches/`: Version-controlled patch sets applied and reverted via `scripts/patch.sh`.
+  - `vendor/custom/`: Isolated custom code containing all components, apps, samples, interfaces, and unit tests.
+- **Dual Build Support:**
+  - **Standalone Mode (`--standalone`):** Compiles `cfgManager` and `cfgClient` using `mkapp -t simulation` into `.update` packages for fast, iterative deployment.
+  - **Integrated Mode (`--integrated`):** Integrates `vendor/custom/vendor.sinc` via `system_simulation.sdef`, baking `cfgManager` directly into the full TelAF simulation system image.
 - **Path Abstraction via Composite `cfgId`:** Consumer applications interact purely with 32-bit composite IDs (`[Subsystem 8b][Category 8b][Flags 8b][KeyId 8b]`). Internal filesystem paths and `configTree` trees remain completely hidden from consumers.
 - **Three-Tier Data Classification:**
   - **RawData:** Direct storage in TelAF `configTree`.
   - **SensitiveData:** Authenticated encryption using OpenSSL **AES-256-GCM** with unique 96-bit random IV and 128-bit authentication tag per entry.
   - **SecureData:** Hardware root-of-trust storage via TrustZone / OP-TEE HAL with automatic simulated enclave fallback.
 - **Pub/Sub Change Notifications:** Real-time event propagation via Legato event loop with ID-specific and subsystem-wide filters.
-- **C++20 Standard:** Implemented using modern C++20 features, concepts, structured bindings, and RAII.
-- **Google Test Coverage:** 45 automated unit tests with C2 branch coverage.
+- **C++20 Standard:** Strictly limited to `-std=c++20` across all components, samples, tests, and build definitions.
+- **Google Test Suite:** 45 automated unit tests with C2 branch coverage.
 
 ---
 
-## Repository Layout
+## Directory Layout
 
 ```text
 legato_rpi/  (Branch: feat/telaf-simulation)
-├── components/                       # Reusable business logic C++20 components
-│   └── cfgManager/
-│       ├── core/                     # cfgId, cfgRouter, cfgManagerService
-│       ├── crypto/                   # AES-256-GCM crypto engine
-│       ├── security/                 # TrustZone / OP-TEE / Simulated Enclave HAL
-│       ├── storage/                  # configTree & memory backend
-│       └── events/                   # Event dispatcher
+├── upstream/                         # Pristine Qualcomm TelAF Simulation Sources
+│   ├── telaf/                        # TelAF Core Framework
+│   ├── legato/                       # Legato Application Framework (legato-af)
+│   ├── sdk/                          # Snaptel SDK
+│   ├── telaf-pa/                     # Platform Adaptor
+│   └── telaf-pa-default/             # Platform Adaptor Default
 │
-├── apps/                             # Legato/TelAF Application Packages
-│   └── cfgManager/                   # CfgManager daemon service (.adef, Component.cdef)
+├── patches/                          # Upstream Patches (Version-controlled)
+│   └── legato/
+│       └── 0001-ifgen-jinja2-compatibility.patch
 │
-├── samples/                          # Sample Applications
-│   └── cfgClient/                    # CfgManager demo client (.adef, clientComponent)
+├── vendor/                           # Custom Development Code (C++20)
+│   └── custom/                       # Custom vendor namespace
+│       ├── apps/
+│       │   └── cfgManager/           # CfgManager service daemon
+│       ├── components/
+│       │   └── cfgManager/           # 5 core subsystems (core, crypto, security, storage, events)
+│       ├── samples/
+│       │   └── cfgClient/            # Client demo app
+│       ├── interfaces/
+│       │   └── cfgManager.api        # RPC IDL definition
+│       ├── tests/                    # Google Test C++20 suites
+│       ├── vendor.sinc               # System include for TelAF integration
+│       └── system_simulation.sdef    # Integrated system definition
 │
-├── interfaces/                       # Legato IPC API Definitions
-│   └── cfgManager.api                # TelAF RPC function/event numbering
+├── scripts/                          # Build & Deployment Tooling
+│   ├── patch.sh                      # Apply, revert, inspect upstream patches
+│   ├── build.sh                      # Dual-mode builder (--standalone | --integrated)
+│   ├── deploy.sh                     # Runtime package deployer & live verifier
+│   ├── run-simulation.sh             # Container lifecycle manager (start|stop|status|shell)
+│   └── run-unit-tests.sh             # Google Test C++20 test runner
 │
-├── scripts/                          # Automated Developer Tooling
-│   ├── build.sh                      # Builds cfgManager & cfgClient for simulation
-│   ├── deploy.sh                     # Deploys & runs live demo on runtime container
-│   ├── run-simulation.sh             # Manages container lifecycle (start|stop|status|shell)
-│   └── run-unit-tests.sh             # Google Test runner with C2 coverage
-│
-├── tests/                            # Google Test C++20 Unit Tests
-│   ├── core/
-│   ├── crypto/
-│   ├── security/
-│   ├── storage/
-│   ├── events/
-│   ├── service/
-│   └── CMakeLists.txt
-│
-└── docs/                             # Guides & Architecture Specifications
-    ├── telaf_simulation.md           # TelAF simulation setup & execution guide
-    └── CFG_MANAGER.md                # CfgManager service specification
+├── Makefile                          # Unified developer CLI interface
+├── docs/                             # Architecture & Integration Guides
+└── README.md                         # Project documentation
 ```
 
 ---
 
-## Quickstart
+## Developer Quickstart
 
-### 1. Start TelAF Simulation
-Launch the Qualcomm TelAF simulation container:
+The repository provides a top-level `Makefile` for developer convenience:
+
+### 1. Run Unit Tests (Google Test C++20)
 ```bash
-./scripts/run-simulation.sh start
+make test
 ```
-
-Verify framework status:
+Or with branch coverage report:
 ```bash
-./scripts/run-simulation.sh status
-```
-
-### 2. Run Google Test Unit Tests
-Execute the pure C++20 unit test suite with coverage:
-```bash
-./scripts/run-unit-tests.sh --coverage
+make coverage
 ```
 All 45 tests across 9 test suites will run and report 100% PASS.
 
-### 3. Build TelAF Packages
-Compile both `cfgManager` and `cfgClient` for target `simulation` using the development container:
+### 2. Upstream Patch Management
+To inspect, apply, or revert patches against `upstream/`:
 ```bash
-./scripts/build.sh
+make patch-status     # View status of upstream patches
+make patch-apply      # Apply all patches to upstream/
+make patch-revert     # Revert all patches (restore pristine upstream)
 ```
-Build outputs:
-- `apps/cfgManager/cfgManager.simulation.update`
-- `samples/cfgClient/cfgClient.simulation.update`
 
-### 4. Deploy and Verify Live IPC Execution
-Deploy both applications into the running simulation container and verify end-to-end communication:
+### 3. Build Applications (Dual Mode)
+
+- **Standalone Mode (Default):**
+  ```bash
+  make build-app
+  # Or: ./scripts/build.sh --standalone
+  ```
+  Generates `.update` packages:
+  - `vendor/custom/apps/cfgManager/cfgManager.simulation.update`
+  - `vendor/custom/samples/cfgClient/cfgClient.simulation.update`
+
+- **Integrated System Mode:**
+  ```bash
+  make build-system
+  # Or: ./scripts/build.sh --integrated
+  ```
+  Generates full TelAF simulation system image:
+  - `vendor/custom/_build_system/system_simulation.simulation.update`
+
+### 4. Deploy and Verify Live IPC on Simulation Container
 ```bash
-./scripts/deploy.sh
+make deploy
+# Or: ./scripts/deploy.sh
 ```
 
 Live output from syslog confirms all features:
@@ -151,9 +176,8 @@ simulation user.info TelAF:  INFO | cfgClient | >>> [CLIENT EVENT] Configuration
 ## Simulation Container Commands
 
 ```bash
-./scripts/run-simulation.sh start    # Start simulation container
-./scripts/run-simulation.sh status   # Check container and TelAF daemons status
-./scripts/run-simulation.sh shell    # Attach interactive bash terminal
-./scripts/run-simulation.sh logs     # Stream live syslog
-./scripts/run-simulation.sh stop     # Stop simulation container
+make run-sim         # Start simulation runtime container
+make sim-status      # Check container and TelAF daemons status
+make sim-shell       # Attach interactive bash terminal
+make stop-sim        # Stop simulation container
 ```
