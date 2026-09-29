@@ -14,7 +14,7 @@ sources:
 cxxflags:
 {
     -std=c++23
-    -I${PROJECT_ROOT}/core/include
+    -I${PROJECT_ROOT}/components/cfgManager/core/include
 }
 
 ldflags:

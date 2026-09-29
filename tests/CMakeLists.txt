@@ -15,20 +15,20 @@ find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
 
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/../core/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../crypto/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../security/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../storage/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../events/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/cfgManager/core/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/cfgManager/crypto/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/cfgManager/security/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/cfgManager/storage/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/cfgManager/events/include
     ${OPENSSL_INCLUDE_DIR}
 )
 
 file(GLOB_RECURSE CORE_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/../core/src/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../crypto/src/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../security/src/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../storage/src/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../events/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/cfgManager/core/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/cfgManager/crypto/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/cfgManager/security/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/cfgManager/storage/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/cfgManager/events/src/*.cpp
 )
 
 file(GLOB_RECURSE TEST_SRCS

@@ -22,35 +22,32 @@ for arg in "$@"; do
 done
 
 echo "====================================================================="
-echo " Running CfgManager Google Test Suite (C++23) in Docker"
+echo " Running CfgManager Google Test Suite (C++23)"
 echo "====================================================================="
 
-bash "${PROJECT_ROOT}/docker/run-docker-build.sh" bash -c "
-    set -euo pipefail
-    BUILD_DIR=\"/workspace/build/tests\"
-    mkdir -p \"\${BUILD_DIR}\"
-    cd \"\${BUILD_DIR}\"
+BUILD_DIR="${PROJECT_ROOT}/build/tests"
+mkdir -p "${BUILD_DIR}"
+cd "${BUILD_DIR}"
 
-    echo '==> Configuring CMake for GTest...'
-    cmake /workspace/tests -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
+echo "==> Configuring CMake for GTest..."
+cmake "${PROJECT_ROOT}/tests" -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
 
-    echo '==> Building unit test binary...'
-    make -j\$(nproc)
+echo "==> Building unit test binary..."
+make -j"$(nproc)"
 
-    echo '==> Executing test runner...'
-    ./cfgmanager_tests ${TEST_ARGS[*]:-}
+echo "==> Executing test runner..."
+./cfgmanager_tests ${TEST_ARGS[*]:-}
 
-    if [ \"${COVERAGE_FLAG}\" -eq 1 ]; then
-        echo '====================================================================='
-        echo ' C2 Branch Coverage Report (gcovr)'
-        echo '====================================================================='
-        gcovr --root /workspace \
-              --filter '/workspace/core/' \
-              --filter '/workspace/crypto/' \
-              --filter '/workspace/security/' \
-              --filter '/workspace/storage/' \
-              --filter '/workspace/events/' \
-              --branches \
-              --print-summary || true
-    fi
-"
+if [ "${COVERAGE_FLAG}" -eq 1 ]; then
+    echo "====================================================================="
+    echo " C2 Branch Coverage Report (gcovr)"
+    echo "====================================================================="
+    gcovr --root "${PROJECT_ROOT}" \
+          --filter "${PROJECT_ROOT}/components/cfgManager/core/" \
+          --filter "${PROJECT_ROOT}/components/cfgManager/crypto/" \
+          --filter "${PROJECT_ROOT}/components/cfgManager/security/" \
+          --filter "${PROJECT_ROOT}/components/cfgManager/storage/" \
+          --filter "${PROJECT_ROOT}/components/cfgManager/events/" \
+          --branches \
+          --print-summary || true
+fi
