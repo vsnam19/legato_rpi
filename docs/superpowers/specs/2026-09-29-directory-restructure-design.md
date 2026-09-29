@@ -1,22 +1,26 @@
-# Directory Restructure & Source Simplification Specification
+# Directory Restructure & Source Simplification Specification (TelAF Simulation)
 
-## 1. Context & Motivation
+## 1. Context & Goals
 
-The repository previously accumulated files at the root level across multiple development phases:
-1. The initial Raspberry Pi 5 Legato framework port (`targets/`, `target-root/`, `patches/`, `toolchain/`, `docker/`).
-2. The `CfgManager` service components scattered at the root level (`core/`, `crypto/`, `security/`, `storage/`, `events/`).
-3. HTTP 429 rate limit workaround scripts (`clone_telaf_repos.py`, `test_telaf_cloner.py`, `setup_simulation.sh`, `branch_mapping.conf`, `patch_me.json`), which are no longer needed as the environment is already prepared and only runtime/build/deploy sources are needed.
-4. An unorganized `scripts/` directory mixing target Raspberry Pi 5 scripts and TelAF simulation scripts.
+This branch (`feat/telaf-simulation`) is dedicated exclusively to **Qualcomm TelAF Simulation**.
+All legacy Raspberry Pi 5 platform files, intermediate rate-limit cloning workarounds, and unused sample scripts are removed. The repository is organized strictly into a clean, modular TelAF architecture:
 
-This refactoring reorganizes the repository into a modular Legato/TelAF architecture and strips out non-essential rate-limiting scripts.
+1. **Pure TelAF Simulation Target**: Build system and scripts target `simulation` (`mkapp -t simulation`) running on `telaf_simulation_runtime_2204:1.0.0`.
+2. **Modular Components**: The 5 CfgManager subsystems are placed under `components/cfgManager/`.
+3. **Streamlined Scripts**:
+   - `scripts/build.sh`: Builds `cfgManager` and `cfgClient` packages for simulation.
+   - `scripts/deploy.sh`: Deploys packages to the running simulation container and displays live verification logs.
+   - `scripts/run-simulation.sh`: Manages the TelAF container lifecycle (`start`, `stop`, `status`, `shell`).
+   - `scripts/run-unit-tests.sh`: Executes the Google Test C++23 test suite with coverage.
+4. **Clean Test Suite**: `tests/` contains only Google Test C++23 suites; Python cloner tests are eliminated.
 
 ---
 
-## 2. Directory Layout: Target State
+## 2. Target Directory Layout
 
 ```text
-legato_rpi/
-├── components/                       # Reusable C++ business logic components
+legato_rpi/  (Branch: feat/telaf-simulation)
+├── components/                       # Business logic C++23 components
 │   └── cfgManager/
 │       ├── core/                     # cfgId, cfgRouter, cfgManagerService
 │       │   ├── include/
@@ -34,42 +38,24 @@ legato_rpi/
 │           ├── include/
 │           └── src/
 │
-├── apps/                             # Legato application packages
-│   └── cfgManager/                   # CfgManager daemon service
+├── apps/                             # Legato/TelAF Application Services
+│   └── cfgManager/                   # CfgManager daemon package
 │       ├── cfgManager.adef
 │       └── server/                   # Server component (Component.cdef, cfgManagerServer.cpp)
 │
-├── samples/                          # Sample & demonstration applications
-│   ├── helloWorld/                   # Minimal Legato verification app
+├── samples/                          # Sample Applications
 │   └── cfgClient/                    # CfgManager client demo (.adef, clientComponent)
 │
-├── interfaces/                       # IPC API definitions (.api)
+├── interfaces/                       # IPC API Definitions (.api)
 │   └── cfgManager.api
 │
-├── platform/                         # Target hardware platform ports
-│   └── rpi5/                         # Raspberry Pi 5 platform definitions
-│       ├── targets/                  # rpi5.sdef, rpi5.sinc, platformAdaptor/
-│       ├── target-root/              # systemd units, startup scripts, installer
-│       ├── toolchain/                # toolchain.rpi5.cmake, env.sh
-│       ├── docker/                   # Dockerfile, run-docker-build.sh
-│       └── patches/                  # 0001-add-rpi5-target-support.patch
+├── scripts/                          # TelAF Simulation Tooling
+│   ├── build.sh                      # Builds cfgManager & cfgClient for simulation
+│   ├── deploy.sh                     # Deploys & verifies on simulation container
+│   ├── run-simulation.sh             # Manages container lifecycle (start|stop|status|shell)
+│   └── run-unit-tests.sh             # Google Test runner & C2 coverage
 │
-├── scripts/                          # Orchestration & automation scripts
-│   ├── rpi5/                         # Raspberry Pi 5 build, deploy, samples
-│   │   ├── build.sh
-│   │   ├── internal-build.sh
-│   │   ├── deploy.sh
-│   │   ├── build-sample.sh
-│   │   ├── build-cfgmanager.sh
-│   │   └── build-sample-client.sh
-│   ├── telaf/                        # Qualcomm TelAF simulation runtime & deploy
-│   │   ├── build-cfgmanager-sim.sh
-│   │   ├── deploy-cfgmanager-sim.sh
-│   │   └── run-simulation.sh
-│   ├── run-unit-tests.sh             # Google Test runner with C2 coverage
-│   └── setup_submodule.sh            # Common submodule initialization
-│
-├── tests/                            # Google Test suites (pure C++23)
+├── tests/                            # C++23 Google Test Suites
 │   ├── CMakeLists.txt
 │   ├── test_main.cpp
 │   ├── core/
@@ -79,93 +65,63 @@ legato_rpi/
 │   ├── events/
 │   └── service/
 │
-├── docs/                             # Documentation & specifications
-├── submodules/                       # Upstream submodules (legato-af)
-└── README.md                         # Main repository guide
+├── docs/                             # Architecture & Simulation Guides
+│   ├── telaf_simulation.md
+│   ├── CFG_MANAGER.md
+│   └── superpowers/
+│
+└── README.md                         # Project documentation tailored for TelAF Simulation
 ```
 
 ---
 
-## 3. Scope of Changes
+## 3. Detailed Actions
 
-### 3.1 Files to Remove (Rate-Limit & Non-Essential Utilities)
-- `scripts/telaf_simulation/clone_telaf_repos.py`
-- `scripts/telaf_simulation/setup_simulation.sh`
-- `scripts/telaf_simulation/branch_mapping.conf`
-- `scripts/telaf_simulation/patch_me.json`
-- `scripts/setup-telaf-simulation.sh`
-- `tests/python/test_telaf_cloner.py`
-- Remove `tests/python/` and `scripts/telaf_simulation/`
+### 3.1 Removals
+- **RPi5 Platform Files**:
+  - `targets/`
+  - `target-root/`
+  - `toolchain/`
+  - `patches/`
+  - `docker/`
+  - `samples/helloWorld/`
+- **RPi5 & Obsolete Scripts**:
+  - `scripts/build.sh` (re-implemented for TelAF sim)
+  - `scripts/deploy.sh` (re-implemented for TelAF sim)
+  - `scripts/internal-build.sh`
+  - `scripts/build-sample.sh`
+  - `scripts/build-cfgmanager.sh`
+  - `scripts/build-sample-client.sh`
+  - `scripts/setup_submodule.sh`
+- **Rate-Limit & Cloner Files**:
+  - `scripts/telaf_simulation/` (and all its contents: `clone_telaf_repos.py`, `setup_simulation.sh`, etc.)
+  - `scripts/setup-telaf-simulation.sh`
+  - `tests/python/` (and `test_telaf_cloner.py`)
 
-### 3.2 Relocations via Git Move
-1. **CfgManager Subsystems -> `components/cfgManager/`**:
-   - `git mv core components/cfgManager/core`
-   - `git mv crypto components/cfgManager/crypto`
-   - `git mv security components/cfgManager/security`
-   - `git mv storage components/cfgManager/storage`
-   - `git mv events components/cfgManager/events`
+### 3.2 Relocations (Git Move)
+- `core/` -> `components/cfgManager/core/`
+- `crypto/` -> `components/cfgManager/crypto/`
+- `security/` -> `components/cfgManager/security/`
+- `storage/` -> `components/cfgManager/storage/`
+- `events/` -> `components/cfgManager/events/`
 
-2. **RPi5 Platform Files -> `platform/rpi5/`**:
-   - `git mv targets platform/rpi5/targets`
-   - `git mv target-root platform/rpi5/target-root`
-   - `git mv toolchain platform/rpi5/toolchain`
-   - `git mv patches platform/rpi5/patches`
-   - `git mv docker platform/rpi5/docker`
+### 3.3 New/Updated Scripts
+- `scripts/build.sh`: Replaces old RPi build script with the TelAF simulation build logic (from `build-cfgmanager-sim.sh`).
+- `scripts/deploy.sh`: Replaces old RPi deploy script with the TelAF simulation deploy logic (from `deploy-cfgmanager-sim.sh`).
+- `scripts/run-simulation.sh`: Directly wraps container lifecycle (`scripts/telaf_simulation/run_simulation.sh` relocated to `scripts/run-simulation.sh`).
+- Remove redundant `scripts/build-cfgmanager-sim.sh` and `scripts/deploy-cfgmanager-sim.sh`.
 
-3. **Scripts Organization**:
-   - `scripts/rpi5/`: `build.sh`, `internal-build.sh`, `deploy.sh`, `build-sample.sh`, `build-cfgmanager.sh`, `build-sample-client.sh`
-   - `scripts/telaf/`: `build-cfgmanager-sim.sh`, `deploy-cfgmanager-sim.sh`, `run-simulation.sh` (renamed from `run-telaf-simulation.sh`)
-
-### 3.3 Configuration and Code Updates
-
-1. **`apps/cfgManager/server/Component.cdef`**:
-   Update paths:
-   - Sources: `${PROJECT_ROOT}/components/cfgManager/<module>/src/...`
-   - Include flags: `-I${PROJECT_ROOT}/components/cfgManager/<module>/include`
-
-2. **`samples/cfgClient/clientComponent/Component.cdef`**:
-   Update include:
-   - `-I${PROJECT_ROOT}/components/cfgManager/core/include`
-
-3. **`tests/CMakeLists.txt`**:
-   Update paths:
-   - Include directories: `${CMAKE_CURRENT_SOURCE_DIR}/../components/cfgManager/<module>/include`
-   - Core sources: `${CMAKE_CURRENT_SOURCE_DIR}/../components/cfgManager/<module>/src/*.cpp`
-
-4. **`scripts/run-unit-tests.sh`**:
-   Update gcov coverage filters:
-   - `--filter '/workspace/components/cfgManager/core/'`
-   - `--filter '/workspace/components/cfgManager/crypto/'`
-   - `--filter '/workspace/components/cfgManager/security/'`
-   - `--filter '/workspace/components/cfgManager/storage/'`
-   - `--filter '/workspace/components/cfgManager/events/'`
-
-5. **`platform/rpi5/docker/run-docker-build.sh` & `scripts/rpi5/build.sh`**:
-   - Update script and workspace paths pointing to `platform/rpi5/...`.
-
-6. **`scripts/rpi5/internal-build.sh`**:
-   - Update symlink paths:
-     - `targets/rpi5.sdef` -> `platform/rpi5/targets/rpi5.sdef`
-     - `targets/rpi5.sinc` -> `platform/rpi5/targets/rpi5.sinc`
-     - `platformAdaptor/wdog` -> `platform/rpi5/targets/platformAdaptor/wdog`
-     - Patch path -> `platform/rpi5/patches/0001-add-rpi5-target-support.patch`
-
-7. **`scripts/telaf/build-cfgmanager-sim.sh` & `scripts/telaf/deploy-cfgmanager-sim.sh`**:
-   - Update any internal path references to ensure relative resolution from `scripts/telaf/` works accurately.
-
-8. **`docs/telaf_simulation.md` & `README.md`**:
-   - Remove rate-limit cloning instructions.
-   - Streamline simulation guide to: start simulation -> build packages -> deploy & verify.
-   - Update tree structure diagrams.
+### 3.4 Code & Configuration Fixes
+- `apps/cfgManager/server/Component.cdef`: Update paths to `${PROJECT_ROOT}/components/cfgManager/...`.
+- `samples/cfgClient/clientComponent/Component.cdef`: Update include to `${PROJECT_ROOT}/components/cfgManager/core/include`.
+- `tests/CMakeLists.txt`: Update include and source globs to `../components/cfgManager/...`.
+- `scripts/run-unit-tests.sh`: Update gcov coverage filters to `/workspace/components/cfgManager/...`.
 
 ---
 
-## 4. Acceptance Verification
+## 4. Acceptance Criteria
 
-1. **Google Test Unit Tests**:
-   - Run `./scripts/run-unit-tests.sh`
-   - Must pass all 45 C++ unit tests.
-   - Code coverage must remain >= 80% on core components.
-2. **TelAF Simulation Build & Execution**:
-   - Run `./scripts/telaf/build-cfgmanager-sim.sh` -> packages built without error.
-   - Run `./scripts/telaf/deploy-cfgmanager-sim.sh` -> installed into container, live demo execution passes with clean syslog.
+1. Google Test suite (`./scripts/run-unit-tests.sh`): **45/45 PASS**.
+2. TelAF Build (`./scripts/build.sh`): Builds `apps/cfgManager/cfgManager.simulation.update` and `samples/cfgClient/cfgClient.simulation.update` successfully.
+3. TelAF Deploy (`./scripts/deploy.sh`): Installs on `telaf_simulation_runtime_2204_m`, restarts `cfgClient`, and prints live syslog confirming all operations passed.
+4. Clean Git Status: No untracked junk, no dead RPi5 or rate-limit files remaining.
